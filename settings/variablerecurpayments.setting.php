@@ -24,6 +24,19 @@
  +-------------------------------------------------------------------*/
 
 return array(
+  'variablerecurpayments_normalmembershipamount' => array(
+    'group_name' => 'Variablerecurpayments Settings',
+    'group' => 'variablerecurpayments',
+    'name' => 'variablerecurpayments_normalmembershipamount',
+    'type' => 'Boolean',
+    'html_type' => 'Checkbox',
+    'default' => 0,
+    'add' => '4.7',
+    'is_domain' => 1,
+    'is_contact' => 0,
+    'description' => 'Different first/regular membership amount',
+    'html_attributes' => array(),
+  ),
   'variablerecurpayments_fixedpaymentdate' => array(
     'group_name' => 'Variablerecurpayments Settings',
     'group' => 'variablerecurpayments',

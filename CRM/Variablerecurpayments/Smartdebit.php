@@ -5,19 +5,12 @@ class CRM_Variablerecurpayments_Smartdebit {
   /**
    * Allow a different amount (eg. pro-rata amount) to be passed as first amount, but set regular amount to be
    *   amount defined for that membership type.
-   * Call via hook_civicrm_alterSmartdebitCreateVariableDDIParams(&$params, &$smartDebitParams)
+   * Call via hook_civicrm_smartdebit_alterCreateVariableDDIParams(&$params, &$smartDebitParams)
    *
    * @param $params
    * @param $smartDebitParams
    */
   public static function alterNormalMembershipAmount(&$params, &$smartDebitParams) {
-    //$params['contributionRecurID'];
-    //$params['membershipID'];
-    //$params['amount'];
-    //$params['contactID'];
-    //$params['priceSetId'];
-    //$params['price_5'];
-
     if (empty($params['membershipID'])) {
       return;
     }
@@ -42,6 +35,9 @@ class CRM_Variablerecurpayments_Smartdebit {
   }
 
   /**
+   * Once the first payment has been confirmed by Smartdebit, set the next payment date to $paymentDate
+   * Call via hook_civicrm_smartdebit_updateRecurringContribution
+   *
    * @param array $recurContributionParams
    * @param string $paymentDate (in std format: yyyy-mm-dd)
    */

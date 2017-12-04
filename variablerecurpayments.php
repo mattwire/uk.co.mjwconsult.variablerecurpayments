@@ -130,8 +130,12 @@ function variablerecurpayments_civicrm_alterSettingsFolders(&$metaDataFolders = 
  * @param $smartDebitParams
  */
 function variablerecurpayments_civicrm_smartdebit_alterCreateVariableDDIParams(&$params, &$smartDebitParams) {
-  if (CRM_Extension_System::singleton()->getMapper()->isActiveModule('smartdebit')) {
-    CRM_Variablerecurpayments_Smartdebit::alterNormalMembershipAmount($params, $smartDebitParams);
+  if (CRM_Variablerecurpayments_Settings::getValue('normalmembershipamount')) {
+    if (CRM_Extension_System::singleton()
+      ->getMapper()
+      ->isActiveModule('smartdebit')) {
+      CRM_Variablerecurpayments_Smartdebit::alterNormalMembershipAmount($params, $smartDebitParams);
+    }
   }
 }
 
