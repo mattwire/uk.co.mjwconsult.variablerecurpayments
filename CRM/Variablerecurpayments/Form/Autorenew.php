@@ -69,8 +69,11 @@ class CRM_Variablerecurpayments_Form_Autorenew extends CRM_Core_Form {
         'contribution_recur_id' => '',
       ));
     }
-    $url = CRM_Utils_System::url('civicrm/contact/view', 'action=browse&selectedChild=member&cid='.$this->_cid);
-    CRM_Utils_System::redirect($url);
+    if (empty((CRM_Utils_Request::retrieve('snippet', 'String')))) {
+      // if $_REQUEST['snippet'] is set we are probably in popup context so don't redirect
+      $url = CRM_Utils_System::url('civicrm/contact/view', 'action=browse&selectedChild=member&cid=' . $this->_cid);
+      CRM_Utils_System::redirect($url);
+    }
   }
 
   /**
@@ -113,7 +116,7 @@ class CRM_Variablerecurpayments_Form_Autorenew extends CRM_Core_Form {
     $cRecur[$contributionRecur['id']] = $paymentProcessorName.'/'
       .$contributionStatus.'/'.CRM_Utils_Money::format($contributionRecur['amount'],$contributionRecur['currency'])
       .'/every ' . $contributionRecur['frequency_interval'] . ' ' . $contributionRecur['frequency_unit']
-      .'/'.$contributionRecur['trxn_id'];
+      .'/'.CRM_Utils_Array::value('trxn_id', $contributionRecur);
   }
   return $cRecur;
 }
