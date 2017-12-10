@@ -8,25 +8,26 @@
   {/if}
 </div>
 
-<div class="crm-block crm-form-block crm-form-membership-autorenew">
 <div class="crm-submit-buttons">
-{include file="CRM/common/formButtons.tpl" location="top"}
+  {include file="CRM/common/formButtons.tpl" location="top"}
 </div>
+
+<div class="crm-block crm-form-block crm-form-membership-autorenew">
   {if $action eq 1}
     <h2>Enable auto-renew for this membership?</h2>
   {elseif $action eq 8}
     <h2>Are you sure you want to disable auto-renew for this membership?</h2>
   {/if}
-{foreach from=$elementNames item=elementName}
-  <div class="crm-section">
-    <div class="label">{$form.$elementName.label}</div>
-    <div class="content">{$form.$elementName.html}</div>
-    <div class="clear"></div>
-  </div>
-{/foreach}
+  {foreach from=$elementNames item=elementName}
+    <div class="crm-section">
+      <div class="label">{$form.$elementName.label}</div>
+      <div class="content">{$form.$elementName.html}</div>
+      <div class="clear"></div>
+    </div>
+  {/foreach}
+</div>
 
 {* FOOTER *}
 <div class="crm-submit-buttons">
-{include file="CRM/common/formButtons.tpl" location="bottom"}
-</div>
+  {include file="CRM/common/formButtons.tpl" location="bottom"}
 </div>
