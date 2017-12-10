@@ -69,6 +69,8 @@ class CRM_Variablerecurpayments_Form_Autorenew extends CRM_Core_Form {
         'contribution_recur_id' => '',
       ));
     }
+    $url = CRM_Utils_System::url('civicrm/contact/view', 'action=browse&selectedChild=member&cid='.$this->_cid);
+    CRM_Utils_System::redirect($url);
   }
 
   /**

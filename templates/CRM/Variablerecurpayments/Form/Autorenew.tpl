@@ -8,10 +8,6 @@
   {/if}
 </div>
 
-<div class="crm-submit-buttons">
-  {include file="CRM/common/formButtons.tpl" location="top"}
-</div>
-
 <div class="crm-block crm-form-block crm-form-membership-autorenew">
   {if $action eq 1}
     <h2>Enable auto-renew for this membership?</h2>
