@@ -1,5 +1,4 @@
-<?xml version="1.0" encoding="iso-8859-1" ?>
-
+<?xml version="1.0"?>
 <menu>
   <item>
     <path>civicrm/admin/variablerecurpayments</path>
@@ -10,5 +9,10 @@
     <page_type>0</page_type>
     <component>Contact</component>
   </item>
+  <item>
+    <path>civicrm/variablerecurpayments/autorenew</path>
+    <page_callback>CRM_Variablerecurpayments_Form_Autorenew</page_callback>
+    <title>Autorenew</title>
+    <access_arguments>access CiviCRM</access_arguments>
+  </item>
 </menu>
-

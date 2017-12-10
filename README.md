@@ -5,6 +5,12 @@ Access: Administer->CiviContribute->Variable Recur Payments
 * Fixed date for recurring payments: If set, all (smartdebit) recurring contributions that have 
 already had one or more payments taken will have the start_date updated to match this date.
 
+## Enable/Disable Auto-Renew for memberships
+Adds links to memberships in contact tab to:
+
+* Enable auto-renew - if the membership has no recurring contribution.
+* Disable auto-renew - if the membership already has a recurring contribution.
+
 ## Implements the following Smartdebit Hooks
 
 ### civicrm_smartdebit_alterCreateVariableDDIParams

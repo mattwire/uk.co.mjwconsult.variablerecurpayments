@@ -171,3 +171,44 @@ function variablerecurpayments_civicrm_navigationMenu(&$menu) {
   _variablerecurpayments_civix_insert_navigation_menu($menu, 'Administer/CiviContribute', $item[0]);
   _variablerecurpayments_civix_navigationMenu($menu);
 }
+
+function variablerecurpayments_civicrm_links($op, $objectName, $objectId, &$links, &$mask, &$values) {
+  //create a Send Invoice link with the context of the participant's order ID (a custom participant field)
+  switch ($objectName) {
+    case 'Membership':
+      switch ($op) {
+        case 'membership.tab.row':
+        case 'membership.selector.row':
+          $mid = $values['id'];
+          $cid = $values['cid'];
+
+          try {
+            $membership = civicrm_api3('Membership', 'getsingle', array(
+              'id' => $mid,
+            ));
+          }
+          catch (CiviCRM_API3_Exception $e) {
+            return;
+          }
+
+          if (empty($membership['contribution_recur_id'])) {
+            $links[] = array(
+              'name' => ts('Enable Auto-Renew'),
+              'title' => ts('Enable Auto-Renew'),
+              'url' => 'civicrm/variablerecurpayments/autorenew',
+              'qs' => "action=add&reset=1&cid={$cid}&selectedChild=membership&mid={$mid}",
+            );
+          }
+          else {
+            $links[] = array(
+              'name' => ts('Disable Auto-Renew'),
+              'title' => ts('Disable Auto-Renew'),
+              'url' => 'civicrm/variablerecurpayments/autorenew',
+              'qs' => "action=delete&reset=1&cid={$cid}&selectedChild=membership&mid={$mid}",
+            );
+          }
+
+      }
+      break;
+  }
+}
