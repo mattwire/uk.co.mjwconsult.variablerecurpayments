@@ -67,5 +67,68 @@ class CRM_Variablerecurpayments_Smartdebit {
     }
   }
 
+  public static function checkSubscription(&$recurContributionParams, $paymentDate) {
+    //TODO: Document change to alterVariableDDI hook
+    //TODO: Test the updating of subscription amounts
+    if (!empty($paymentDate)) {
+      $dateNow = date("Y-m-d", strtotime('+1 day'));
+      Civi::log()->debug('datenow' . $dateNow);
+      Civi::log()->debug('paymentdate' . $paymentDate);
+      $suppliedDate = new \DateTime($paymentDate);
+      $currentYear = (int)(new \DateTime())->format('Y');
+      if ($dateNow > $paymentDate) {
+        $newPaymentDate = (new \DateTime())->setDate($currentYear + 1, (int) $suppliedDate->format('m'), (int) $suppliedDate->format('d'));
+        $paymentDate = $newPaymentDate->format('Y-m-d');
+        $paymentDateMD = $newPaymentDate->format('m-d');
+      }
+      else {
+        $paymentDateMD = $suppliedDate->format('m-d');
+      }
+
+      $currentStartDate = new \DateTime($recurContributionParams['start_date']);
+      $currentStartDateMD = $currentStartDate->format('m-d');
+
+      if ($currentStartDateMD != $paymentDateMD) {
+        // Update the start_date to fixed date if we've taken first amount
+        Civi::log()->debug('updating start date');
+        CRM_Variablerecurpayments_Smartdebit::setFixedPaymentDateAfterFirstAmount($recurContributionParams, $paymentDate);
+      }
+      else {
+        if (empty($recurContributionParams['trxn_id'])) {
+          return;
+        }
+        $query = "SELECT first_amount,regular_amount FROM veda_smartdebit_mandates WHERE reference_number='" . $recurContributionParams['trxn_id'] . "'";
+        $dao = CRM_Core_DAO::executeQuery($query);
+        $dao->fetch();
+        if ($dao->first_amount == $dao->regular_amount) {
+          try {
+            $membership = civicrm_api3('Membership', 'getsingle', array(
+              'return' => array("membership_type_id"),
+              'contribution_recur_id' => $recurContributionParams['id'],
+            ));
+            $membershipType = civicrm_api3('MembershipType', 'getsingle', array(
+              'return' => array("minimum_fee"),
+              'id' => $membership['membership_type_id'],
+            ));
+          }
+          catch (CiviCRM_API3_Exception $e) {
+            Civi::log()->debug('checksubscription: Could not find membership type for recur: ' . $recurContributionParams['id']);
+            return;
+          }
+          if ($membershipType['minimum_fee'] == $dao->first_amount) {
+            // No need to update subscription as we didn't pro-rata in the first place.
+            Civi::log()->debug('checksubscription: No need to update subscription as we didn\'t pro-rata this membership');
+            return;
+          }
+
+          // Assume we need to update regular amount as it's the same as first amount
+          Civi::log()->debug('running changesubscription to update regular_amount');
+          $paymentProcessorObj = Civi\Payment\System::singleton()->getById($recurContributionParams['payment_processor_id']);
+          CRM_Core_Payment_Smartdebit::changeSubscription($paymentProcessorObj->getPaymentProcessor(), $recurContributionParams);
+        }
+      }
+    }
+  }
+
 }
 

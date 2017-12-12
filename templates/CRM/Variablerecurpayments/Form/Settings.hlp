@@ -25,6 +25,7 @@
 {htxt id='fixedpaymentdate'}
 {ts}If this is set all (Smartdebit) recurring payments will be updated to match this date during the nightly sync job once the initial payment has been taken.{/ts}
 <br/>{ts}Leave blank to disable{/ts}
+<br/>{ts}Note: The year is ignored, just specify a year in the future.{/ts}
 {/htxt}
 {htxt id='normalmembershipamount'}
 {ts}If set, allow a different amount (eg. pro-rata amount) to be passed as first amount, but set regular amount to be amount defined for that membership type.

@@ -47,7 +47,7 @@ return array(
     'add' => '4.7',
     'is_domain' => 1,
     'is_contact' => 0,
-    'description' => 'Fixed date for recurring payments',
+    'description' => 'Fixed ANNUAL date for recurring payments',
     'html_attributes' => array(),
     'html_extra' => array(
       'time' => FALSE,

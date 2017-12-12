@@ -129,12 +129,17 @@ function variablerecurpayments_civicrm_alterSettingsFolders(&$metaDataFolders = 
  * @param $params
  * @param $smartDebitParams
  */
-function variablerecurpayments_civicrm_smartdebit_alterCreateVariableDDIParams(&$params, &$smartDebitParams) {
+function variablerecurpayments_civicrm_smartdebit_alterVariableDDIParams(&$params, &$smartDebitParams, $op) {
   if (CRM_Variablerecurpayments_Settings::getValue('normalmembershipamount')) {
-    if (CRM_Extension_System::singleton()
-      ->getMapper()
-      ->isActiveModule('smartdebit')) {
-      CRM_Variablerecurpayments_Smartdebit::alterNormalMembershipAmount($params, $smartDebitParams);
+    switch ($op) {
+      case 'create':
+      case 'update':
+        if (CRM_Extension_System::singleton()
+          ->getMapper()
+          ->isActiveModule('smartdebit')) {
+          CRM_Variablerecurpayments_Smartdebit::alterNormalMembershipAmount($params, $smartDebitParams);
+        }
+        break;
     }
   }
 }
@@ -146,10 +151,8 @@ function variablerecurpayments_civicrm_smartdebit_alterCreateVariableDDIParams(&
  */
 function variablerecurpayments_civicrm_smartdebit_updateRecurringContribution(&$recurContributionParams) {
   $paymentDate = CRM_Variablerecurpayments_Settings::getValue('fixedpaymentdate');
-  if (!empty($paymentDate)) {
-    if (CRM_Extension_System::singleton()->getMapper()->isActiveModule('smartdebit')) {
-      CRM_Variablerecurpayments_Smartdebit::setFixedPaymentDateAfterFirstAmount($recurContributionParams, $paymentDate);
-    }
+  if (CRM_Extension_System::singleton()->getMapper()->isActiveModule('smartdebit')) {
+    CRM_Variablerecurpayments_Smartdebit::checkSubscription($recurContributionParams, $paymentDate);
   }
 }
 
