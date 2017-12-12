@@ -57,9 +57,7 @@ class CRM_Variablerecurpayments_Smartdebit {
     //TODO: Document change to alterVariableDDI hook
     //TODO: Test the updating of subscription amounts
     if (!empty($paymentDate)) {
-      $dateNow = date("Y-m-d", strtotime('+1 day'));
-      Civi::log()->debug('datenow' . $dateNow);
-      Civi::log()->debug('paymentdate' . $paymentDate);
+      $dateNow = date("Y-m-d", strtotime('+10 day'));
       $suppliedDate = new \DateTime($paymentDate);
       $currentYear = (int)(new \DateTime())->format('Y');
       if ($dateNow > $paymentDate) {
@@ -76,7 +74,7 @@ class CRM_Variablerecurpayments_Smartdebit {
 
       if ($currentStartDateMD != $paymentDateMD) {
         // Update the start_date to fixed date if we've taken first amount
-        Civi::log()->debug('updating start date');
+        Civi::log()->debug('Variablerecurpayments: Updating R'.$recurContributionParams['id'].' start_date from '.$recurContributionParams['start_date'].' to '.$paymentDate);
         CRM_Variablerecurpayments_Smartdebit::setFixedPaymentDateAfterFirstAmount($recurContributionParams, $paymentDate);
       }
       else {
@@ -96,7 +94,7 @@ class CRM_Variablerecurpayments_Smartdebit {
           }
 
           // Assume we need to update regular amount as it's the same as first amount
-          Civi::log()->debug('running changesubscription to update regular_amount');
+          Civi::log()->debug('Variablerecurpayments checkSubscription: Triggered changeSubscription to update regular_amount');
 
           $recurContributionParams['membershipID'] = CRM_Utils_Array::value('id', $membership);
           $paymentProcessorObj = Civi\Payment\System::singleton()->getById($recurContributionParams['payment_processor_id']);
