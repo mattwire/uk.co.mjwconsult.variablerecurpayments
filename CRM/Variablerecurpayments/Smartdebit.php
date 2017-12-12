@@ -15,22 +15,8 @@ class CRM_Variablerecurpayments_Smartdebit {
       return;
     }
 
-    try {
-      $membership = civicrm_api3('Membership', 'getsingle', array(
-        'return' => array("membership_type_id"),
-        'id' => $params['membershipID'],
-      ));
-      $membershipType = civicrm_api3('MembershipType', 'getsingle', array(
-        'return' => array("minimum_fee"),
-        'id' => $membership['membership_type_id'],
-      ));
-    }
-    catch (CiviCRM_API3_Exception $e) {
-      Civi::log()->debug('firstamount: Could not find membership type for: ' . $params['membershipID']);
-      return;
-    }
-
-    $smartDebitParams['variable_ddi[regular_amount]'] = CRM_Smartdebit_Api::encodeAmount($membershipType['minimum_fee']);
+    $membership = CRM_Variablerecurpayments_Utils::getMembershipByParams(array('id' => $params['membershipID']));
+    $smartDebitParams['variable_ddi[regular_amount]'] = CRM_Smartdebit_Api::encodeAmount($membership['minimum_fee']);
     $smartDebitParams['variable_ddi[default_amount]'] = $smartDebitParams['variable_ddi[regular_amount]'];
   }
 
@@ -101,21 +87,9 @@ class CRM_Variablerecurpayments_Smartdebit {
         $dao = CRM_Core_DAO::executeQuery($query);
         $dao->fetch();
         if ($dao->first_amount == $dao->regular_amount) {
-          try {
-            $membership = civicrm_api3('Membership', 'getsingle', array(
-              'return' => array("membership_type_id"),
-              'contribution_recur_id' => $recurContributionParams['id'],
-            ));
-            $membershipType = civicrm_api3('MembershipType', 'getsingle', array(
-              'return' => array("minimum_fee"),
-              'id' => $membership['membership_type_id'],
-            ));
-          }
-          catch (CiviCRM_API3_Exception $e) {
-            Civi::log()->debug('checksubscription: Could not find membership type for recur: ' . $recurContributionParams['id']);
-            return;
-          }
-          if ($membershipType['minimum_fee'] == $dao->first_amount) {
+          $membership = CRM_Variablerecurpayments_Utils::getMembershipByParams(array('contribution_recur_id' => $recurContributionParams['id']));
+
+          if ($membership['minimum_fee'] == $dao->first_amount) {
             // No need to update subscription as we didn't pro-rata in the first place.
             Civi::log()->debug('checksubscription: No need to update subscription as we didn\'t pro-rata this membership');
             return;
@@ -123,6 +97,8 @@ class CRM_Variablerecurpayments_Smartdebit {
 
           // Assume we need to update regular amount as it's the same as first amount
           Civi::log()->debug('running changesubscription to update regular_amount');
+
+          $recurContributionParams['membershipID'] = CRM_Utils_Array::value('id', $membership);
           $paymentProcessorObj = Civi\Payment\System::singleton()->getById($recurContributionParams['payment_processor_id']);
           CRM_Core_Payment_Smartdebit::changeSubscription($paymentProcessorObj->getPaymentProcessor(), $recurContributionParams);
         }
