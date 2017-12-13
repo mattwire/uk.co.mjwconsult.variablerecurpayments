@@ -64,6 +64,13 @@ class CRM_Variablerecurpayments_Smartdebit {
         return;
       }
 
+      $smartDebitParams = CRM_Smartdebit_Mandates::getbyReference($recurContributionParams['trxn_id'], FALSE);
+      if (!empty($smartDebitParams['end_date'])) {
+        // Do not update mandates which have an end date set.
+        Civi::log()->debug($recurContributionParams['trxn_id'] . ' has an end_date so not updating start_date');
+        return;
+      }
+
       $dateNow = date("Y-m-d", strtotime('+10 day'));
       $suppliedDate = new \DateTime($paymentDate);
       $currentYear = (int)(new \DateTime())->format('Y');
