@@ -73,6 +73,12 @@ class CRM_Variablerecurpayments_Smartdebit {
         return;
       }
 
+      // Only update Live/New direct debits
+      if (($smartDebitParams['current_state'] != CRM_Smartdebit_Api::SD_STATE_NEW) && ($smartDebitParams['current_state'] != CRM_Smartdebit_Api::SD_STATE_LIVE)) {
+        Civi::log()->debug('Not updating ' . $recurContributionParams['trxn_id'] . ' because it is not live');
+        return;
+      }
+
       // Do not update mandates which have an end date set.
       if (!empty($smartDebitParams['end_date'])) {
         Civi::log()->debug($recurContributionParams['trxn_id'] . ' has an end_date so not updating start_date');
