@@ -5,7 +5,7 @@ class CRM_Variablerecurpayments_Smartdebit {
   /**
    * Allow a different amount (eg. pro-rata amount) to be passed as first amount, but set regular amount to be
    *   amount defined for that membership type.
-   * Call via hook_civicrm_smartdebit_alterCreateVariableDDIParams(&$params, &$smartDebitParams)
+   * Call via hook_civicrm_smartdebit_alterariableDDIParams(&$params, &$smartDebitParams)
    *
    * @param $params
    * @param $smartDebitParams
@@ -57,6 +57,13 @@ class CRM_Variablerecurpayments_Smartdebit {
     //TODO: Document change to alterVariableDDI hook
     //TODO: Test the updating of subscription amounts
     if (!empty($paymentDate)) {
+      //TODO: Only update if it is an annual subscription (ie. once per year
+      //TODO: Fix monthly payers
+      if (($recurContributionParams['frequency_unit'] != 'year') || ($recurContributionParams['frequency_interval'] != 1)) {
+        // Not an Annual recurring contribution so don't touch
+        return;
+      }
+
       $dateNow = date("Y-m-d", strtotime('+10 day'));
       $suppliedDate = new \DateTime($paymentDate);
       $currentYear = (int)(new \DateTime())->format('Y');
