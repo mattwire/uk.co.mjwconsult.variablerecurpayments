@@ -53,14 +53,21 @@ class CRM_Variablerecurpayments_Smartdebit {
     }
   }
 
+  /**
+   * Check subscription for smartdebit
+   * This function updates amounts and payment date at smartdebit based on conditions
+   * @param $recurContributionParams
+   * @param $paymentDate
+   *
+   * @throws \CiviCRM_API3_Exception
+   * @throws \Exception
+   */
   public static function checkSubscription(&$recurContributionParams, $paymentDate) {
     if (empty($recurContributionParams['trxn_id'])) {
       // We must have a reference_number to do anything.
       return;
     }
 
-    //TODO: Document change to alterVariableDDI hook
-    //TODO: Test the updating of subscription amounts
     if (!empty($paymentDate)) {
       // Not an Annual recurring contribution so don't touch
       if (($recurContributionParams['frequency_unit'] != 'year') || ($recurContributionParams['frequency_interval'] != 1)) {
@@ -113,7 +120,7 @@ class CRM_Variablerecurpayments_Smartdebit {
 
         if ($membership['minimum_fee'] == $smartDebitParams['first_amount']) {
           // No need to update subscription as we didn't pro-rata in the first place.
-          Civi::log()->debug('checksubscription: No need to update subscription as we didn\'t pro-rata this membership');
+          Civi::log()->debug('checksubscription: No need to update ' . $recurContributionParams['trxn_id'] . ' as we didn\'t pro-rata this membership');
           return;
         }
 

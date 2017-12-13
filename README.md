@@ -13,7 +13,7 @@ Adds links to memberships in contact tab to:
 
 ## Implements the following Smartdebit Hooks
 
-### civicrm_smartdebit_alterCreateVariableDDIParams
+### civicrm_smartdebit_alterVariableDDIParams
 
 If the contribution is for a membership, the first amount will be set to the amount passed in 
 (eg. by the contribution page), but the regular amount will be set to the fee configured for 
