@@ -110,7 +110,7 @@ class CRM_Variablerecurpayments_Smartdebit {
 
       if ($currentStartDateMD != $paymentDateMD) {
         // Update the start_date to fixed date if we've taken first amount
-        Civi::log()->debug('Variablerecurpayments: Updating R'.$recurContributionParams['id'].' start_date from '.$smartDebitParams['start_date'].' to '.$paymentDate);
+        Civi::log()->info('Variablerecurpayments: Updating R'.$recurContributionParams['id'].':'.$recurContributionParams['trxn_id'].' start_date from '.$smartDebitParams['start_date'].' to '.$paymentDate);
         CRM_Variablerecurpayments_Smartdebit::setFixedPaymentDateAfterFirstAmount($recurContributionParams, $paymentDate);
       }
 
