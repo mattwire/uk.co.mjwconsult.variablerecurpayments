@@ -92,23 +92,29 @@ class CRM_Variablerecurpayments_Smartdebit {
         return;
       }
 
-      // Check if we already have a fixed payment date for this recur.
-      $dateNow = date("Y-m-d", strtotime('+10 day'));
+      // If we want to change the date it must be 10 days in advance
+      $cutoffDate = new \DateTime();
+      $cutoffDate->modify('+10 day');
       $suppliedDate = new \DateTime($paymentDate);
       $currentYear = (int)(new \DateTime())->format('Y');
-      if ($dateNow > $paymentDate) {
+      if ($cutoffDate > $suppliedDate) {
+        // Set next payment date to the following year with fixed month/day
         $newPaymentDate = (new \DateTime())->setDate($currentYear + 1, (int) $suppliedDate->format('m'), (int) $suppliedDate->format('d'));
         $paymentDate = $newPaymentDate->format('Y-m-d');
         $paymentDateMD = $newPaymentDate->format('m-d');
       }
       else {
+        // Set next payment date to the current year with fixed month/day
+        $newPaymentDate = (new \DateTime())->setDate($currentYear, (int) $suppliedDate->format('m'), (int) $suppliedDate->format('d'));
+        $paymentDate = $newPaymentDate->format('Y-m-d');
         $paymentDateMD = $suppliedDate->format('m-d');
       }
 
+      // Get the month/day from the current start date set at smartdebit
       $currentStartDate = new \DateTime($smartDebitParams['start_date']);
       $currentStartDateMD = $currentStartDate->format('m-d');
 
-      if ($currentStartDateMD != $paymentDateMD) {
+      if (strcmp($currentStartDateMD, $paymentDateMD) === 0) {
         // Update the start_date to fixed date if we've taken first amount
         Civi::log()->info('Variablerecurpayments: Updating R'.$recurContributionParams['id'].':'.$recurContributionParams['trxn_id'].' start_date from '.$smartDebitParams['start_date'].' to '.$paymentDate);
         CRM_Variablerecurpayments_Smartdebit::setFixedPaymentDateAfterFirstAmount($recurContributionParams, $paymentDate);
