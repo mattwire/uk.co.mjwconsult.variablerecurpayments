@@ -53,4 +53,17 @@ return array(
       'time' => FALSE,
       'minDate' => '+10 day'),
   ),
+  'variablerecurpayments_autorenewmultiple' => array(
+    'group_name' => 'Variablerecurpayments Settings',
+    'group' => 'variablerecurpayments',
+    'name' => 'variablerecurpayments_autorenewmultiple',
+    'type' => 'Boolean',
+    'html_type' => 'Checkbox',
+    'default' => 0,
+    'add' => '4.7',
+    'is_domain' => 1,
+    'is_contact' => 0,
+    'description' => 'Allow multiple memberships to be linked to a single recurring contribution (via UI)',
+    'html_attributes' => array(),
+  ),
 );

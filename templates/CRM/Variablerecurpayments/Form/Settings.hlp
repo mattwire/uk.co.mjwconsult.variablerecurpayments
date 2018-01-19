@@ -31,3 +31,7 @@
 {ts}If set, allow a different amount (eg. pro-rata amount) to be passed as first amount, but set regular amount to be amount defined for that membership type.
 You should use a custom extension to set the first amount, the regular amount will be taken from the membership configured "minimum fee"{/ts}
 {/htxt}
+{htxt id='autorenewmultiple'}
+{ts}If set, the menu option to Enable/Disable Auto-renew on memberships will allow you to add multiple memberships to the same recurring contribution.
+If not set, the list of recurring contributions will be filtered so that only those not linked to a membership will be shown.
+{/htxt}

@@ -87,7 +87,6 @@ class CRM_Variablerecurpayments_Form_Autorenew extends CRM_Core_Form {
     }
   // Get recurring contributions by contact Id
   $contributionRecurRecords = civicrm_api3('ContributionRecur', 'get', array(
-    'sequential' => 1,
     'contact_id' => $this->_cid,
     'options' => array('limit' => 0),
   ));
@@ -97,10 +96,12 @@ class CRM_Variablerecurpayments_Form_Autorenew extends CRM_Core_Form {
     $membership = civicrm_api3('Membership', 'get', array(
       'contribution_recur_id' => $contributionRecur['id'],
     ));
-    if (!empty($membership['count'])) {
+    if (empty(CRM_Variablerecurpayments_Settings::getValue('autorenewmultiple'))
+        && !empty($membership['count'])) {
       // Don't offer recur contribution that is already linked to membership
       continue;
     }
+
     // Get payment processor name used for recurring contribution
     try {
       $processor = \Civi\Payment\System::singleton()
@@ -113,10 +114,16 @@ class CRM_Variablerecurpayments_Form_Autorenew extends CRM_Core_Form {
     $paymentProcessorName = $processor->getPaymentProcessor()['name'];
     $contributionStatus = CRM_Core_PseudoConstant::getLabel('CRM_Contribute_BAO_Contribution', 'contribution_status_id', $contributionRecur['contribution_status_id']);
     // Create display name for recurring contribution
-    $cRecur[$contributionRecur['id']] = $paymentProcessorName.'/'
-      .$contributionStatus.'/'.CRM_Utils_Money::format($contributionRecur['amount'],$contributionRecur['currency'])
-      .'/every ' . $contributionRecur['frequency_interval'] . ' ' . $contributionRecur['frequency_unit']
-      .'/'.CRM_Utils_Array::value('trxn_id', $contributionRecur);
+    $membershipDescription = '';
+    if ($membership['count'] > 0) {
+      $membershipDescription = ' (' . $membership['count'] . ' memberships)';
+    }
+    $cRecur[$contributionRecur['id']] = $paymentProcessorName . '/'
+      . $contributionStatus . '/'
+      . CRM_Utils_Money::format($contributionRecur['amount'],$contributionRecur['currency'])
+      . '/every ' . $contributionRecur['frequency_interval'] . ' ' . $contributionRecur['frequency_unit']
+      . '/' . CRM_Utils_Array::value('trxn_id', $contributionRecur)
+      . $membershipDescription;
   }
   return $cRecur;
 }
