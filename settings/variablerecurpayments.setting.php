@@ -24,20 +24,11 @@
  +-------------------------------------------------------------------*/
 
 return array(
-  'variablerecurpayments_normalmembershipamount' => array(
-    'group_name' => 'Variablerecurpayments Settings',
-    'group' => 'variablerecurpayments',
-    'name' => 'variablerecurpayments_normalmembershipamount',
-    'type' => 'Boolean',
-    'html_type' => 'Checkbox',
-    'default' => 0,
-    'add' => '4.7',
-    'is_domain' => 1,
-    'is_contact' => 0,
-    'description' => 'Different first/regular membership amount',
-    'html_attributes' => array(),
-  ),
+  // Membership Payment dates
   'variablerecurpayments_fixedpaymentdate' => array(
+    'admin_group' => 'variablerecurpayments_date',
+    'admin_grouptitle' => 'Payment Dates',
+    'admin_groupdescription' => 'Settings that modify payment dates',
     'group_name' => 'Variablerecurpayments Settings',
     'group' => 'variablerecurpayments',
     'name' => 'variablerecurpayments_fixedpaymentdate',
@@ -53,7 +44,42 @@ return array(
       'time' => FALSE,
       'minDate' => '+10 day'),
   ),
+  // Membership payment amounts
+  'variablerecurpayments_normalmembershipamount' => array(
+    'admin_group' => 'variablerecurpayments_memberamount',
+    'admin_grouptitle' => 'Membership Recurring Payment Amounts',
+    'admin_groupdescription' => 'Settings that modify the recurring payment amount based on the memberships that are linked to a recurring contribution',
+    'group_name' => 'Variablerecurpayments Settings',
+    'group' => 'variablerecurpayments',
+    'name' => 'variablerecurpayments_normalmembershipamount',
+    'type' => 'Boolean',
+    'html_type' => 'Checkbox',
+    'default' => 0,
+    'add' => '4.7',
+    'is_domain' => 1,
+    'is_contact' => 0,
+    'description' => 'Different first/regular membership amount',
+    'html_attributes' => array(),
+  ),
+  'variablerecurpayments_collectextramembershippayments' => array(
+    'admin_group' => 'variablerecurpayments_memberamount',
+    'group_name' => 'Variablerecurpayments Settings',
+    'group' => 'variablerecurpayments',
+    'name' => 'variablerecurpayments_collectextramembershippayments',
+    'type' => 'array',
+    'html_type' => 'select2',
+    'default' => array(),
+    'add' => '4.7',
+    'is_domain' => 1,
+    'is_contact' => 0,
+    'description' => 'Additional memberships to include in regular payment amount calculation.',
+    'html_attributes' => array('class' => 'big', 'placeholder' => ts('- select -'), 'multiple' => TRUE),
+  ),
+  // Membership Recur Settings
   'variablerecurpayments_autorenewmultiple' => array(
+    'admin_group' => 'variablerecurpayments_memberrecur',
+    'admin_grouptitle' => 'Membership Recur Settings',
+    'admin_groupdescription' => 'Settings that affect how recurring contributions and memberships are managed.',
     'group_name' => 'Variablerecurpayments Settings',
     'group' => 'variablerecurpayments',
     'name' => 'variablerecurpayments_autorenewmultiple',
@@ -66,4 +92,5 @@ return array(
     'description' => 'Allow multiple memberships to be linked to a single recurring contribution (via UI)',
     'html_attributes' => array(),
   ),
+
 );

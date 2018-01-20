@@ -58,9 +58,24 @@ class CRM_Variablerecurpayments_Form_Settings extends CRM_Core_Form {
             }
             $this->add('datepicker', $name, ts($setting['description']), $setting['html_attributes'], FALSE, $setting['html_extra']);
             break;
+          case 'select2':
+            $className = E::CLASS_PREFIX . '_Form_SettingsCustom';
+            if (method_exists($className, 'addSelect2')) {
+              $className::addSelect2($this, $name, $setting);
+            }
+        }
+
+        $elementGroups[$setting['admin_group']]['elementNames'][] = $name;
+        // Title and description may not be defined on all elements (they only need to be on one)
+        if (!empty($setting['admin_grouptitle'])) {
+          $elementGroups[$setting['admin_group']]['title'] = $setting['admin_grouptitle'];
+        }
+        if (!empty($setting['admin_groupdescription'])) {
+          $elementGroups[$setting['admin_group']]['description'] = $setting['admin_groupdescription'];
         }
       }
     }
+
     $this->addButtons(array(
       array (
         'type' => 'submit',
@@ -74,7 +89,7 @@ class CRM_Variablerecurpayments_Form_Settings extends CRM_Core_Form {
     ));
 
     // export form elements
-    $this->assign('elementNames', $this->getRenderableElementNames());
+    $this->assign('elementGroups', $elementGroups);
 
   }
 
@@ -94,27 +109,6 @@ class CRM_Variablerecurpayments_Form_Settings extends CRM_Core_Form {
     CRM_Variablerecurpayments_Settings::save($settingsToSave);
     parent::postProcess();
     CRM_Core_Session::singleton()->setStatus('Configuration Updated', CRM_Variablerecurpayments_Settings::TITLE, 'success');
-  }
-
-  /**
-   * Get the fields/elements defined in this form.
-   *
-   * @return array (string)
-   */
-  public function getRenderableElementNames() {
-    // The _elements list includes some items which should not be
-    // auto-rendered in the loop -- such as "qfKey" and "buttons".  These
-    // items don't have labels.  We'll identify renderable by filtering on
-    // the 'label'.
-    $elementNames = array();
-    foreach ($this->_elements as $element) {
-      /** @var HTML_QuickForm_Element $element */
-      $label = $element->getLabel();
-      if (!empty($label)) {
-        $elementNames[] = $element->getName();
-      }
-    }
-    return $elementNames;
   }
 
   /**
