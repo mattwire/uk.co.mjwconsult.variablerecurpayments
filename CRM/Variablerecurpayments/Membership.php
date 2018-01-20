@@ -96,7 +96,7 @@ class CRM_Variablerecurpayments_Membership {
     foreach ($memberships as $id => $membership) {
       // Only use memberships which have the same frequency as the recurring contribution to calculate amounts.
       if (($recurParams['frequency_unit'] !== $membership['membership_type_id.duration_unit'])
-          || ($recurParams['frequency_interval'] !== $membership['membership_type_id.duration_unit'])) {
+          || ($recurParams['frequency_interval'] !== $membership['membership_type_id.duration_interval'])) {
         if (CRM_Variablerecurpayments_Settings::getValue('debug')) {
           Civi::log()->debug('Variablerecurpayments: R' . $recurParams['id'] . ' Membership and recur frequencies do not match - not updating regular_amount with mid=' . $membership['id']);
         }
