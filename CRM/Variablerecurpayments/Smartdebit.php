@@ -106,13 +106,12 @@ class CRM_Variablerecurpayments_Smartdebit {
     }
 
     // We don't set smartDebitParams['regular_amount'] here as it's called again by alterVariableDDIParams where it actually gets set.
-
     // Assume we need to update regular amount as it's the same as first amount
     Civi::log()->debug('Variablerecurpayments checkSubscription: UPDATE R' . $recurContributionParams['id'] . ': regular_amount old=' .$smartDebitParams['regular_amount'] . ' new=' . $regularAmount);
     return TRUE;
   }
 
-  public static function checkPaymentDates(&$recurContributionParams, $smartDebitParams, &$nextPaymentDate) {
+  public static function checkPaymentDates(&$recurContributionParams, $smartDebitParams, &$startDate) {
     $fixedPaymentDate = CRM_Variablerecurpayments_Settings::getValue('fixedpaymentdate');
     if (!empty($fixedPaymentDate)) {
       // Not an Annual recurring contribution so don't touch
@@ -130,6 +129,19 @@ class CRM_Variablerecurpayments_Smartdebit {
           Civi::log()
             ->debug('Variablerecurpayments: R' . $recurContributionParams['id'] . ' has an end_date so not updating start_date');
         }
+        return FALSE;
+      }
+
+      // Don't update the startDate if no contributions have been recorded.
+      // (One should always exist as it's created on signup, but will be missing the trxn_id
+      try {
+        $contribution = civicrm_api3('Contribution', 'getsingle', array(
+          'contribution_recur_id' => $recurContributionParams['id'],
+          'options' => array('limit' => 1, 'sort' => "id DESC"),
+        ));
+      }
+      catch (CiviCRM_API3_Exception $e) {
+        // No contributions, so this must be the first payment, we don't want to change the date.
         return FALSE;
       }
 
@@ -155,24 +167,15 @@ class CRM_Variablerecurpayments_Smartdebit {
       $currentStartDate = new \DateTime($smartDebitParams['start_date']);
       $currentStartDateMD = $currentStartDate->format('m-d');
 
+      // Do we need to update the start date? ie. does month/day match or not?
       if (strcmp($currentStartDateMD, $paymentDateMD) !== 0) {
-        // Update the start_date to fixed date if we've taken first amount
-        Civi::log()
-          ->info('Variablerecurpayments: UPDATE R' . $recurContributionParams['id'] . ':' . $recurContributionParams['trxn_id'] . ' start_date from ' . $smartDebitParams['start_date'] . ' to ' . $nextPaymentDate);
+        // If we have a transaction ID, then contribution has been synced so let's modify DD date
+        // 10 is a random number, trxn_id is in format WEB0000232/20170112000000 so could be a bit more precise here but don't think we need to
+        if (!empty($contribution['trxn_id']) && strlen($contribution['trxn_id'] > 10)) {
+          // Update the start_date to fixed date if we've taken first amount
+          Civi::log()
+            ->info('Variablerecurpayments: UPDATE R' . $recurContributionParams['id'] . ':' . $recurContributionParams['trxn_id'] . ' start_date from ' . $smartDebitParams['start_date'] . ' to ' . $nextPaymentDate);
 
-        try {
-          $contribution = civicrm_api3('Contribution', 'getsingle', array(
-            'contribution_recur_id' => $recurContributionParams['id'],
-            'options' => array('limit' => 1, 'sort' => "id DESC"),
-          ));
-        }
-        catch (CiviCRM_API3_Exception $e) {
-          // No contributions, so this must be the first payment, we don't want to change the date.
-          return FALSE;
-        }
-
-        if (!empty($contribution['trxn_id'])) {
-          // If we have a transaction ID, then contribution has been synced so let's modify DD date
           // Do not change these dates (modified_date will be updated automatically, start_date is not changing on the recur, only at smartdebit).
           unset($recurContributionParams['start_date']);
           unset($recurContributionParams['modified_date']);
@@ -180,10 +183,9 @@ class CRM_Variablerecurpayments_Smartdebit {
           $recurContributionParams['cycle_day'] = $newPaymentDate->format('d');
           $recurContributionParams['next_sched_contribution_date'] = $nextPaymentDate;
           $recurContributionParams['next_sched_contribution'] = $nextPaymentDate;
+          $startDate = $nextPaymentDate;
           return TRUE;
         }
-
-        return TRUE;
       }
     }
 
