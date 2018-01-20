@@ -92,7 +92,7 @@ class CRM_Variablerecurpayments_Membership {
     }
 
     // Get the minimum fee from each membership_type and add to regular amount.
-    $regularAmount = 0;
+    $regularAmount = NULL;
     foreach ($memberships as $id => $membership) {
       // Only use memberships which have the same frequency as the recurring contribution to calculate amounts.
       if (($recurParams['frequency_unit'] !== $membership['membership_type_id.duration_unit'])
