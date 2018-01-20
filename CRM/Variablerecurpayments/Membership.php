@@ -53,7 +53,7 @@ class CRM_Variablerecurpayments_Membership {
   public static function getMembershipsByRecur($recurringContributionId) {
     $membershipParams = array(
       'contribution_recur_id' => $recurringContributionId,
-      'return' => array('membership_type_id'),
+      'return' => array('membership_type_id', 'membership_type_id.duration_unit', 'membership_type_id.duration_interval', 'membership_type_id.minimum_fee'),
       'options' => array('limit' => 0),
     );
 
@@ -94,18 +94,16 @@ class CRM_Variablerecurpayments_Membership {
     // Get the minimum fee from each membership_type and add to regular amount.
     $regularAmount = 0;
     foreach ($memberships as $id => $membership) {
-
-      try {
-        $membershipType = civicrm_api3('MembershipType', 'getsingle', array(
-          'return' => array('minimum_fee'),
-          'id' => $membership['membership_type_id'],
-        ));
+      // Only use memberships which have the same frequency as the recurring contribution to calculate amounts.
+      if (($recurParams['frequency_unit'] !== $membership['membership_type_id.duration_unit'])
+          || ($recurParams['frequency_interval'] !== $membership['membership_type_id.duration_unit'])) {
+        if (CRM_Variablerecurpayments_Settings::getValue('debug')) {
+          Civi::log()->debug('Variablerecurpayments: R' . $recurParams['id'] . ' Membership and recur frequencies do not match - not updating regular_amount with mid=' . $membership['id']);
+        }
+        continue;
       }
-      catch (CiviCRM_API3_Exception $e) {
-        Civi::log()->error('Variablerecurpayments: Could not find membership_type_id=' . $membership['membership_type_id'] . '. ' . $e->getMessage());
-      }
-      if (is_numeric($membershipType['minimum_fee'])) {
-        $regularAmount = $regularAmount + $membershipType['minimum_fee'];
+      if (is_numeric($membership['membership_type_id.minimum_fee'])) {
+        $regularAmount = $regularAmount + $membership['membership_type_id.minimum_fee'];
       }
     }
 
