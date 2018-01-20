@@ -100,7 +100,7 @@ class CRM_Variablerecurpayments_Smartdebit {
     // We don't set smartDebitParams['regular_amount'] here as it's called again by alterVariableDDIParams where it actually gets set.
 
     // Assume we need to update regular amount as it's the same as first amount
-    Civi::log()->debug('Variablerecurpayments checkSubscription: UPDATE regular_amount=' . $smartDebitParams['regular_amount']);
+    Civi::log()->debug('Variablerecurpayments checkSubscription: UPDATE R' . $recurContributionParams['id'] . ': regular_amount=' . $smartDebitParams['regular_amount']);
     return TRUE;
   }
 
