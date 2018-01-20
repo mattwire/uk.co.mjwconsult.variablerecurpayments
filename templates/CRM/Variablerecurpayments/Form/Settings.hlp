@@ -31,13 +31,10 @@
 {ts}If set, allow a different amount (eg. pro-rata amount) to be passed as first amount, but set regular amount to be amount defined for that membership type.
 You should use a custom extension to set the first amount, the regular amount will be taken from the membership configured "minimum fee"{/ts}
 {/htxt}
-{htxt id='collectextramembershippayments'}
-{ts}Any memberships you specify here will be included in the normal payment amount calculation if{/ts}:<br />
-{ts}1. "Different First/Regular membership amount is set".{/ts}<br />
-{ts}2. The member has one of those memberships and it is linked to the recurring contribution.{/ts}
-
-{/htxt}
 {htxt id='autorenewmultiple'}
 {ts}If set, the menu option to Enable/Disable Auto-renew on memberships will allow you to add multiple memberships to the same recurring contribution.
 If not set, the list of recurring contributions will be filtered so that only those not linked to a membership will be shown.{/ts}
+{/htxt}
+{htxt id='dryrun'}
+{ts}Note: alterVariableDDI params will not be called on updateSubscription as this requires a a real submission to smartdebit.{/ts}
 {/htxt}

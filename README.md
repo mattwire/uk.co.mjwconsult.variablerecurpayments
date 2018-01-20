@@ -2,14 +2,18 @@
 ## Settings
 Access: Administer->CiviContribute->Variable Recur Payments
 
-* Fixed date for recurring payments: If set, all (smartdebit) recurring contributions that have 
-already had one or more payments taken will have the start_date updated to match this date.
-* Normal Membership Amount: If set, allow a different amount (eg. pro-rata amount) to be passed as first amount, but set regular amount to be amount defined for that membership type.
-  You should use a custom extension to set the first amount, the regular amount will be taken from the membership configured "minimum fee"
-* Allow auto-renew for multiple memberships with one recurring: If set, the menu option to Enable/Disable Auto-renew on memberships will allow you to add multiple memberships to the same recurring contribution.
-  If not set, the list of recurring contributions will be filtered so that only those not linked to a membership will be shown.
+* **Fixed ANNUAL date for recurring payments:**
+If this is set all (Smartdebit) recurring payments will be updated to match this date during the nightly sync job once the initial payment has been taken.
+Leave blank to disable
+Note: The year is ignored, just specify a year in the future.
+* **Calculate regular payment amount based on memberships linked to the recurring contribution:**
+If set, allow a different amount (eg. pro-rata amount) to be passed as first amount, but set regular amount to be amount defined for that membership type. You should use a custom extension to set the first amount, the regular amount will be taken from the membership configured "minimum fee".
+* **Allow multiple memberships to be linked to a single recurring contribution (via UI):**
+If set, the menu option to Enable/Disable Auto-renew on memberships will allow you to add multiple memberships to the same recurring contribution. If not set, the list of recurring contributions will be filtered so that only those not linked to a membership will be shown.
+* **Dry Run - don't actually make any changes:**
+Note: alterVariableDDI params will not be called on updateSubscription as this requires a a real submission to smartdebit.
 
-## Enable/Disable Auto-Renew for memberships
+## Enable/Disable Auto-Renew for memberships (User Interface)
 Adds links to memberships in contact tab to:
 
 * Enable auto-renew - if the membership has no recurring contribution.
@@ -21,10 +25,33 @@ Adds links to memberships in contact tab to:
 
 If the contribution is for a membership, the first amount will be set to the amount passed in 
 (eg. by the contribution page), but the regular amount will be set to the fee configured for 
-the membership type.  This is useful if you pro-rata the initial payment for example.
+the membership types linked to the recurring membership.  This is useful if you pro-rata the initial payment for example.
 
 
 ### civicrm_smartdebit_updateRecurringContribution
+_This will be triggered every time Smartdebit Sync is called (or Smartdebit.updaterecurring API)._
 
-If the setting "Fixed date for recurring payments" is set, all (smartdebit) recurring contributions that 
-have already had one or more payments taken will have the start_date updated to match this date.
+Payment amounts and dates will be validated and an update will be triggered (via Smartdebit changeSubscription) if any parameters should be updated.
+
+## Use Cases
+### Pay for multiple memberships using the same recurring contribution (direct debit)
+Settings:
+* **Calculate regular payment amount based on memberships linked to the recurring contribution:**: TRUE
+* **Allow multiple memberships to be linked to a single recurring contribution (via UI):**: TRUE
+
+1. The contact will need to sign-up for the initial recurring contribution, it could be a donation or a membership.
+1. An administrator goes to the contact record and selects "Enable Auto-renew" on each membership that should be included in the payment calculation.  They select the same recurring contribution.
+1. The first payment taken will match what the contact signed up for.
+1. The regular payment taken will update to match the sum of membership minimum fees.
+
+### The first payment should be taken when the client signs-up but the regular payments should be on a fixed date each year.
+Settings:
+* **Fixed ANNUAL date for recurring payments:**: TRUE (set to a real date).
+* **Calculate regular payment amount based on memberships linked to the recurring contribution:**: TRUE
+* **Allow multiple memberships to be linked to a single recurring contribution (via UI):**: TRUE
+
+1. The contact will need to sign-up for the initial recurring contribution, it could be a donation or a membership.
+1. An administrator goes to the contact record and selects "Enable Auto-renew" on each membership that should be included in the payment calculation.  They select the same recurring contribution.
+1. The first payment taken will match what the contact signed up for.
+1. The regular payment taken will update to match the sum of membership minimum fees.
+1. Once the first payment is taken, the start_date will be updated at Smartdebit to match the fixed date defined in settings.

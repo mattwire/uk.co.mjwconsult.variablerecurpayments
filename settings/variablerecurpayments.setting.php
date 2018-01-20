@@ -47,7 +47,7 @@ return array(
   // Membership payment amounts
   'variablerecurpayments_normalmembershipamount' => array(
     'admin_group' => 'variablerecurpayments_memberamount',
-    'admin_grouptitle' => 'Membership Recurring Payment Amounts',
+    'admin_grouptitle' => 'Recurring Payment Amounts',
     'admin_groupdescription' => 'Settings that modify the recurring payment amount based on the memberships that are linked to a recurring contribution',
     'group_name' => 'Variablerecurpayments Settings',
     'group' => 'variablerecurpayments',
@@ -58,22 +58,8 @@ return array(
     'add' => '4.7',
     'is_domain' => 1,
     'is_contact' => 0,
-    'description' => 'Different first/regular membership amount',
+    'description' => 'Calculate regular payment amount based on memberships linked to the recurring contribution.',
     'html_attributes' => array(),
-  ),
-  'variablerecurpayments_collectextramembershippayments' => array(
-    'admin_group' => 'variablerecurpayments_memberamount',
-    'group_name' => 'Variablerecurpayments Settings',
-    'group' => 'variablerecurpayments',
-    'name' => 'variablerecurpayments_collectextramembershippayments',
-    'type' => 'array',
-    'html_type' => 'select2',
-    'default' => array(),
-    'add' => '4.7',
-    'is_domain' => 1,
-    'is_contact' => 0,
-    'description' => 'Additional memberships to include in regular payment amount calculation.',
-    'html_attributes' => array('class' => 'big', 'placeholder' => ts('- select -'), 'multiple' => TRUE),
   ),
   // Membership Recur Settings
   'variablerecurpayments_autorenewmultiple' => array(
@@ -92,5 +78,21 @@ return array(
     'description' => 'Allow multiple memberships to be linked to a single recurring contribution (via UI)',
     'html_attributes' => array(),
   ),
-
+  // Debugging
+  'variablerecurpayments_dryrun' => array(
+    'admin_group' => 'variablerecurpayments_dryrun',
+    'admin_grouptitle' => 'Debug Settings',
+    'admin_groupdescription' => 'Settings that can be used for debugging.',
+    'group_name' => 'Variablerecurpayments Settings',
+    'group' => 'variablerecurpayments',
+    'name' => 'variablerecurpayments_dryrun',
+    'type' => 'Boolean',
+    'html_type' => 'Checkbox',
+    'default' => 0,
+    'add' => '4.7',
+    'is_domain' => 1,
+    'is_contact' => 0,
+    'description' => 'Dry Run - don\'t actually make any changes.',
+    'html_attributes' => array(),
+  ),
 );
