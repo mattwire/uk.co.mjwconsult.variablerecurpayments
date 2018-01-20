@@ -80,7 +80,7 @@ return array(
   ),
   // Debugging
   'variablerecurpayments_dryrun' => array(
-    'admin_group' => 'variablerecurpayments_dryrun',
+    'admin_group' => 'variablerecurpayments_debug',
     'admin_grouptitle' => 'Debug Settings',
     'admin_groupdescription' => 'Settings that can be used for debugging.',
     'group_name' => 'Variablerecurpayments Settings',
@@ -93,6 +93,21 @@ return array(
     'is_domain' => 1,
     'is_contact' => 0,
     'description' => 'Dry Run - don\'t actually make any changes.',
+    'html_attributes' => array(),
+  ),
+  // Debugging
+  'variablerecurpayments_debug' => array(
+    'admin_group' => 'variablerecurpayments_debug',
+    'group_name' => 'Variablerecurpayments Settings',
+    'group' => 'variablerecurpayments',
+    'name' => 'variablerecurpayments_debug',
+    'type' => 'Boolean',
+    'html_type' => 'Checkbox',
+    'default' => 0,
+    'add' => '4.7',
+    'is_domain' => 1,
+    'is_contact' => 0,
+    'description' => 'Extra Debug logging.',
     'html_attributes' => array(),
   ),
 );
