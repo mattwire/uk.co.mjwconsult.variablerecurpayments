@@ -84,7 +84,10 @@ class CRM_Variablerecurpayments_Membership {
     $memberships = self::getMembershipsByRecur($recurParams['id']);
 
     if (!$memberships) {
-      Civi::log()->debug('Variablerecurpayments: No memberships linked to recur=' . $recurParams['id']);
+      if (CRM_Variablerecurpayments_Settings::getValue('debug')) {
+        Civi::log()
+          ->debug('Variablerecurpayments: R' . $recurParams['id'] . ': No memberships linked.');
+      }
       return NULL;
     }
 
