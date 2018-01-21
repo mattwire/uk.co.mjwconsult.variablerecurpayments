@@ -51,8 +51,8 @@ class CRM_Variablerecurpayments_Smartdebit {
       return;
     }
 
-    // Get cached mandate details
-    $smartDebitParams = CRM_Smartdebit_Mandates::getbyReference($recurContributionParams['trxn_id'], FALSE);
+    // Get mandate details
+    $smartDebitParams = CRM_Smartdebit_Mandates::getbyReference($recurContributionParams['trxn_id'], TRUE);
     if (empty($smartDebitParams) || !is_array($smartDebitParams)) {
       return;
     }
