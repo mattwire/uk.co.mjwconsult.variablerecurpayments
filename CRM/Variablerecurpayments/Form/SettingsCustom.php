@@ -32,7 +32,7 @@ use CRM_Variablerecurpayments_ExtensionUtil as E;
  */
 class CRM_Variablerecurpayments_Form_SettingsCustom extends CRM_Variablerecurpayments_Form_Settings {
 
-  public static function addSelect2(&$form, $name, $setting) {
+  public static function addSelect2Element(&$form, $name, $setting) {
     switch ($name) {
       case 'collectextramembershippayments':
         $membershipTypes = CRM_Member_PseudoConstant::membershipType();

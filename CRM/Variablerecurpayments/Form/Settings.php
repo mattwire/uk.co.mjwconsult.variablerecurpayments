@@ -35,7 +35,13 @@ class CRM_Variablerecurpayments_Form_Settings extends CRM_Core_Form {
   function buildQuickForm() {
     parent::buildQuickForm();
 
-    CRM_Utils_System::setTitle(CRM_Variablerecurpayments_Settings::TITLE . ' - ' . E::ts('Settings'));
+    $className = E::CLASS_PREFIX . '_Settings';
+    CRM_Utils_System::setTitle($className::TITLE . ' - ' . E::ts('Settings'));
+
+    $className = E::CLASS_PREFIX . '_Form_SettingsCustom';
+    if (method_exists($className, 'buildQuickFormPre')) {
+      $className::buildQuickFormPre($this);
+    }
 
     $settings = $this->getFormSettings();
 
@@ -60,12 +66,26 @@ class CRM_Variablerecurpayments_Form_Settings extends CRM_Core_Form {
             break;
           case 'select2':
             $className = E::CLASS_PREFIX . '_Form_SettingsCustom';
-            if (method_exists($className, 'addSelect2')) {
-              $className::addSelect2($this, $name, $setting);
+            if (method_exists($className, 'addSelect2Element')) {
+              $className::addSelect2Element($this, $name, $setting);
             }
+            break;
+          case 'select':
+            $className = E::CLASS_PREFIX . '_Form_SettingsCustom';
+            if (method_exists($className, 'addSelectElement')) {
+              $className::addSelectElement($this, $name, $setting);
+            }
+            break;
+          case 'hidden':
+            $hidden = TRUE;
         }
 
-        $elementGroups[$setting['admin_group']]['elementNames'][] = $name;
+        if (isset($hidden)) {
+          continue;
+        }
+
+        $adminGroup = isset($setting['admin_group']) ? $setting['admin_group'] : 'default';
+        $elementGroups[$adminGroup]['elementNames'][] = $name;
         // Title and description may not be defined on all elements (they only need to be on one)
         if (!empty($setting['admin_grouptitle'])) {
           $elementGroups[$setting['admin_group']]['title'] = $setting['admin_grouptitle'];
@@ -94,6 +114,7 @@ class CRM_Variablerecurpayments_Form_Settings extends CRM_Core_Form {
   }
 
   function postProcess() {
+    $className = E::CLASS_PREFIX . '_Settings';
     $changed = $this->_submitValues;
     $settings = $this->getFormSettings(TRUE);
     foreach ($settings as &$setting) {
@@ -106,9 +127,9 @@ class CRM_Variablerecurpayments_Form_Settings extends CRM_Core_Form {
     }
     // Make sure we have all settings elements set (boolean settings will be unset by default and wouldn't be saved)
     $settingsToSave = array_merge($settings, array_intersect_key($changed, $settings));
-    CRM_Variablerecurpayments_Settings::save($settingsToSave);
+    $className::save($settingsToSave);
     parent::postProcess();
-    CRM_Core_Session::singleton()->setStatus('Configuration Updated', CRM_Variablerecurpayments_Settings::TITLE, 'success');
+    CRM_Core_Session::singleton()->setStatus('Configuration Updated', $className::TITLE, 'success');
   }
 
   /**
@@ -117,15 +138,16 @@ class CRM_Variablerecurpayments_Form_Settings extends CRM_Core_Form {
    * @return array
    */
   function getFormSettings($metadata=TRUE) {
+    $className = E::CLASS_PREFIX . '_Settings';
     $unprefixedSettings = array();
-    $settings = civicrm_api3('setting', 'getfields', array('filters' => CRM_Variablerecurpayments_Settings::getFilter()));
+    $settings = civicrm_api3('setting', 'getfields', array('filters' => $className::getFilter()));
     if (!empty($settings['values'])) {
       foreach ($settings['values'] as $name => $values) {
         if ($metadata) {
-          $unprefixedSettings[CRM_Variablerecurpayments_Settings::getName($name, FALSE)] = $values;
+          $unprefixedSettings[$className::getName($name, FALSE)] = $values;
         }
         else {
-          $unprefixedSettings[CRM_Variablerecurpayments_Settings::getName($name, FALSE)] = NULL;
+          $unprefixedSettings[$className::getName($name, FALSE)] = NULL;
         }
       }
     }
@@ -138,10 +160,11 @@ class CRM_Variablerecurpayments_Form_Settings extends CRM_Core_Form {
    * @see CRM_Core_Form::setDefaultValues()
    */
   function setDefaultValues() {
+    $className = E::CLASS_PREFIX . '_Settings';
     $settings = $this->getFormSettings(FALSE);
     $defaults = array();
 
-    $existing = CRM_Variablerecurpayments_Settings::get(array_keys($settings));
+    $existing = $className::get(array_keys($settings));
     if ($existing) {
       foreach ($existing as $name => $value) {
         $defaults[$name] = $value;
