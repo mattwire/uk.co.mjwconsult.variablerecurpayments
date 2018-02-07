@@ -182,7 +182,7 @@ function variablerecurpayments_civicrm_navigationMenu(&$menu) {
 }
 
 function variablerecurpayments_civicrm_links($op, $objectName, $objectId, &$links, &$mask, &$values) {
-  //create a Send Invoice link with the context of the participant's order ID (a custom participant field)
+  //create a "Enable/Disable Auto-Renew link with the context of a contact membership
   switch ($objectName) {
     case 'Membership':
       switch ($op) {

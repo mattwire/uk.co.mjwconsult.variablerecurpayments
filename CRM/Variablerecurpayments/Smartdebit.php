@@ -7,28 +7,16 @@ class CRM_Variablerecurpayments_Smartdebit {
    *   amount defined for that membership type.
    * Call via hook_civicrm_smartdebit_alterariableDDIParams(&$params, &$smartDebitParams)
    *
-   * @param $params
    * @param $smartDebitParams
+   * @param $defaultAmount
    */
-  public static function alterRegularPaymentAmount(&$smartDebitParams, $regularAmount) {
+  public static function alterRegularPaymentAmount(&$smartDebitParams, $defaultAmount) {
     if (CRM_Variablerecurpayments_Settings::getValue('dryrun')) {
-      Civi::log()->debug('Variablerecurpayments: dryrun alterRegularPaymentAmount=' . $regularAmount);
+      Civi::log()->debug('Variablerecurpayments: dryrun alterRegularPaymentAmount=' . $defaultAmount);
       return;
     }
 
-    $smartDebitParams['variable_ddi[regular_amount]'] = CRM_Smartdebit_Api::encodeAmount($regularAmount);
-    $smartDebitParams['variable_ddi[default_amount]'] = $smartDebitParams['variable_ddi[regular_amount]'];
-  }
-
-  /**
-   * Once the first payment has been confirmed by Smartdebit, set the next payment date to $paymentDate
-   * Call via hook_civicrm_smartdebit_updateRecurringContribution
-   *
-   * @param array $recurContributionParams
-   * @param string $startDate (in std format: yyyy-mm-dd)
-   */
-  public static function setFixedPaymentDateAfterFirstAmount(&$recurContributionParams, $startDate) {
-
+    $smartDebitParams['variable_ddi[default_amount]'] = $defaultAmount;
   }
 
   /**
