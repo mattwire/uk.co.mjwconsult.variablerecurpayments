@@ -51,6 +51,10 @@ class CRM_Variablerecurpayments_Membership {
    * @return array
    */
   public static function getMembershipsByRecur($recurringContributionId) {
+    if (empty($recurringContributionId)) {
+      return NULL;
+    }
+
     $membershipParams = array(
       'contribution_recur_id' => $recurringContributionId,
       'return' => array('membership_type_id', 'membership_type_id.duration_unit', 'membership_type_id.duration_interval', 'membership_type_id.minimum_fee'),
@@ -80,8 +84,13 @@ class CRM_Variablerecurpayments_Membership {
    * @return int
    */
   public static function getRegularMembershipAmount($recurParams) {
+    $recurId = CRM_Utils_Array::value('contributionRecurID', $recurParams, CRM_Utils_Array::value('id', $recurParams, NULL));
+    if (empty($recurId)) {
+      return NULL;
+    }
+
     // Get all memberships linked to recur
-    $memberships = self::getMembershipsByRecur($recurParams['id']);
+    $memberships = self::getMembershipsByRecur($recurId);
 
     if (!$memberships) {
       if (CRM_Variablerecurpayments_Settings::getValue('debug')) {

@@ -5,7 +5,7 @@ class CRM_Variablerecurpayments_Smartdebit {
   /**
    * Allow a different amount (eg. pro-rata amount) to be passed as first amount, but set regular amount to be
    *   amount defined for that membership type.
-   * Call via hook_civicrm_smartdebit_alterariableDDIParams(&$params, &$smartDebitParams)
+   * Call via hook_civicrm_smartdebit_alterVariableDDIParams(&$params, &$smartDebitParams)
    *
    * @param $smartDebitParams
    * @param $defaultAmount
