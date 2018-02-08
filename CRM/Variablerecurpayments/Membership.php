@@ -68,7 +68,7 @@ class CRM_Variablerecurpayments_Membership {
       }
     }
     catch (CiviCRM_API3_Exception $e) {
-      Civi::log()->debug('Variablerecurpayments: Could not get memberships for recurId=' . $recurringContributionId);
+      Civi::log()->debug('Variablerecurpayments getMembershipsByRecur: Could not get memberships for recurId=' . $recurringContributionId);
       return NULL;
     }
     return NULL;
@@ -95,7 +95,7 @@ class CRM_Variablerecurpayments_Membership {
     if (!$memberships) {
       if (CRM_Variablerecurpayments_Settings::getValue('debug')) {
         Civi::log()
-          ->debug('Variablerecurpayments: R' . $recurParams['id'] . ': No memberships linked.');
+          ->debug('Variablerecurpayments getRegularMembershipAmount: R' . $recurParams['id'] . ': No memberships linked.');
       }
       return NULL;
     }
@@ -107,7 +107,7 @@ class CRM_Variablerecurpayments_Membership {
       if (($recurParams['frequency_unit'] !== $membership['membership_type_id.duration_unit'])
           || ($recurParams['frequency_interval'] !== $membership['membership_type_id.duration_interval'])) {
         if (CRM_Variablerecurpayments_Settings::getValue('debug')) {
-          Civi::log()->debug('Variablerecurpayments: R' . $recurParams['id'] . ' Membership and recur frequencies do not match - not updating regular_amount with mid=' . $membership['id']);
+          Civi::log()->debug('Variablerecurpayments getRegularMembershipAmount: R' . $recurParams['id'] . ' Membership and recur frequencies do not match - not updating default_amount with mid=' . $membership['id']);
         }
         continue;
       }

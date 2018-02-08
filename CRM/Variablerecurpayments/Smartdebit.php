@@ -10,9 +10,9 @@ class CRM_Variablerecurpayments_Smartdebit {
    * @param $smartDebitParams
    * @param $defaultAmount
    */
-  public static function alterRegularPaymentAmount(&$smartDebitParams, $defaultAmount) {
+  public static function alterDefaultPaymentAmount(&$smartDebitParams, $defaultAmount) {
     if (CRM_Variablerecurpayments_Settings::getValue('dryrun')) {
-      Civi::log()->debug('Variablerecurpayments: dryrun alterRegularPaymentAmount=' . $defaultAmount);
+      Civi::log()->debug('Variablerecurpayments alterDefaultPaymentAmount: dryrun defaultAmount=' . $defaultAmount);
       return;
     }
 
@@ -49,7 +49,7 @@ class CRM_Variablerecurpayments_Smartdebit {
     if (($smartDebitParams['current_state'] != CRM_Smartdebit_Api::SD_STATE_NEW) && ($smartDebitParams['current_state'] != CRM_Smartdebit_Api::SD_STATE_LIVE)) {
       if (CRM_Variablerecurpayments_Settings::getValue('debug')) {
         Civi::log()
-          ->debug('Not updating ' . $recurContributionParams['trxn_id'] . ' because it is not live');
+          ->debug('Variablerecurpayments checkSubscription: Not updating ' . $recurContributionParams['trxn_id'] . ' because it is not live');
       }
       return;
     }
@@ -75,27 +75,26 @@ class CRM_Variablerecurpayments_Smartdebit {
    */
   public static function checkPaymentAmounts($recurContributionParams, $smartDebitParams) {
     // Get the regular payment amount
-    $regularAmount = CRM_Variablerecurpayments_Membership::getRegularMembershipAmount($recurContributionParams);
-    if ($regularAmount === NULL) {
+    $defaultAmount = CRM_Variablerecurpayments_Membership::getRegularMembershipAmount($recurContributionParams);
+    if ($defaultAmount === NULL) {
       if (CRM_Variablerecurpayments_Settings::getValue('debug')) {
         Civi::log()
-          ->debug('Variablerecurpayments checksubscription: No regularAmount calculated.');
+          ->debug('Variablerecurpayments checkPaymentAmounts: No defaultAmount calculated.');
       }
       return FALSE;
     }
-    // Is the regular_amount already matching what we calculated?
-    if ($smartDebitParams['regular_amount'] == $regularAmount) {
+    // Is the default_amount already matching what we calculated?
+    if ($smartDebitParams['default_amount'] == $defaultAmount) {
       // No need to update subscription as the regular payment amount is already correct.
       if (CRM_Variablerecurpayments_Settings::getValue('debug')) {
         Civi::log()
-          ->debug('Variablerecurpayments checksubscription: Not updating ' . $recurContributionParams['trxn_id'] . ' as regular_amount already matches.');
+          ->debug('Variablerecurpayments checkPaymentAmounts: Not updating ' . $recurContributionParams['trxn_id'] . ' as default_amount already matches.');
       }
       return FALSE;
     }
 
-    // We don't set smartDebitParams['regular_amount'] here as it's called again by alterVariableDDIParams where it actually gets set.
-    // Assume we need to update regular amount as it's the same as first amount
-    Civi::log()->debug('Variablerecurpayments checkSubscription: UPDATE R' . $recurContributionParams['id'] . ': regular_amount old=' .$smartDebitParams['regular_amount'] . ' new=' . $regularAmount);
+    // We don't set smartDebitParams['default_amount'] here as it's called again by alterVariableDDIParams where it actually gets set.
+    Civi::log()->info('Variablerecurpayments checkPaymentAmounts: UPDATE R' . $recurContributionParams['id'] . ': default_amount old=' .$smartDebitParams['default_amount'] . ' new=' . $defaultAmount);
     return TRUE;
   }
 
@@ -106,7 +105,7 @@ class CRM_Variablerecurpayments_Smartdebit {
       if (($recurContributionParams['frequency_unit'] != 'year') || ($recurContributionParams['frequency_interval'] != 1)) {
         if (CRM_Variablerecurpayments_Settings::getValue('debug')) {
           Civi::log()
-            ->debug('Variablerecurpayments: R' . $recurContributionParams['id'] . ' does not have a 1year frequency. Not changing dates.');
+            ->debug('Variablerecurpayments checkPaymentDates: R' . $recurContributionParams['id'] . ' does not have a 1year frequency. Not changing dates.');
         }
         return FALSE;
       }
@@ -115,7 +114,7 @@ class CRM_Variablerecurpayments_Smartdebit {
       if (!empty($smartDebitParams['end_date'])) {
         if (CRM_Variablerecurpayments_Settings::getValue('debug')) {
           Civi::log()
-            ->debug('Variablerecurpayments: R' . $recurContributionParams['id'] . ' has an end_date so not updating start_date');
+            ->debug('Variablerecurpayments checkPaymentDates: R' . $recurContributionParams['id'] . ' has an end_date so not updating start_date');
         }
         return FALSE;
       }
@@ -162,7 +161,7 @@ class CRM_Variablerecurpayments_Smartdebit {
         if (!empty($contribution['trxn_id']) && strlen($contribution['trxn_id'] > 10)) {
           // Update the start_date to fixed date if we've taken first amount
           Civi::log()
-            ->info('Variablerecurpayments: UPDATE R' . $recurContributionParams['id'] . ':' . $recurContributionParams['trxn_id'] . ' start_date from ' . $smartDebitParams['start_date'] . ' to ' . $nextPaymentDate);
+            ->info('Variablerecurpayments checkPaymentDates: UPDATE R' . $recurContributionParams['id'] . ':' . $recurContributionParams['trxn_id'] . ' start_date from ' . $smartDebitParams['start_date'] . ' to ' . $nextPaymentDate);
 
           // Do not change these dates (modified_date will be updated automatically, start_date is not changing on the recur, only at smartdebit).
           unset($recurContributionParams['start_date']);
@@ -182,13 +181,18 @@ class CRM_Variablerecurpayments_Smartdebit {
 
   public static function updateSubscription($recurContributionParams, $startDate = NULL) {
     if (empty($recurContributionParams['payment_processor_id'])) {
-      Civi::log()->error('Variablerecurpayments updateSubscription called without payment_processor_id');
+      Civi::log()->error('Variablerecurpayments updateSubscription: called without payment_processor_id');
       return;
     }
     $paymentProcessorObj = Civi\Payment\System::singleton()->getById($recurContributionParams['payment_processor_id']);
 
     if (CRM_Variablerecurpayments_Settings::getValue('dryrun')) {
-      Civi::log()->info('Variablerecurpayments: dryrun startDate=' . $startDate);
+      $message = '';
+      if (!empty($startDate)) {
+        $message = 'startDate=' . $startDate . '; ';
+      }
+      $message .= 'recurParams=' . print_r($recurContributionParams, TRUE);
+      Civi::log()->info('Variablerecurpayments updateSubscription: dryrun ' . $message);
       return;
     }
     CRM_Core_Payment_Smartdebit::changeSubscription($paymentProcessorObj->getPaymentProcessor(), $recurContributionParams, $startDate);

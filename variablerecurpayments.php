@@ -137,18 +137,16 @@ function variablerecurpayments_civicrm_smartdebit_alterVariableDDIParams(&$recur
         if (CRM_Variablerecurpayments_Settings::getValue('debug')) {
           Civi::log()->debug('Variablerecurpayments alterVariableDDIParams recurParams: ' . print_r($recurParams, TRUE));
         }
-
-      // Calculate the regular payment amount
-        $regularAmount = CRM_Variablerecurpayments_Membership::getRegularMembershipAmount($recurParams);
-        if ($regularAmount === NULL) {
+        // Calculate the regular payment amount
+        $defaultAmount = CRM_Variablerecurpayments_Membership::getRegularMembershipAmount($recurParams);
+        if ($defaultAmount === NULL) {
           return;
         }
-
         // Set the regular payment amount
         if (CRM_Extension_System::singleton()
           ->getMapper()
           ->isActiveModule('smartdebit')) {
-          CRM_Variablerecurpayments_Smartdebit::alterRegularPaymentAmount($smartDebitParams, $regularAmount);
+          CRM_Variablerecurpayments_Smartdebit::alterDefaultPaymentAmount($smartDebitParams, $defaultAmount);
         }
         break;
     }
