@@ -1,5 +1,17 @@
 # Variable Recur Payments
-## Settings
+This extension allows for much more flexible payment amounts for recurring contributions (when linked to memberships).
+
+It implements the following features:
+* UI to enable/disable auto-renew functionality for memberships.
+* Pro-rata membership fees (Jan-Dec).
+* Different membership payments for each month.
+* Different initial payment amount (and fixed subsequent amount).
+
+Currently it supports the following recurring contribution processors (via hooks):
+* Smartdebit
+
+## Configuration
+### Settings
 Access: Administer->CiviContribute->Variable Recur Payments
 
 * **Fixed ANNUAL date for recurring payments:**
@@ -13,25 +25,18 @@ If set, the menu option to Enable/Disable Auto-renew on memberships will allow y
 * **Dry Run - don't actually make any changes:**
 Note: alterVariableDDI params will not be called on updateSubscription as this requires a a real submission to smartdebit.
 
-## Enable/Disable Auto-Renew for memberships (User Interface)
+### Custom Fields
+A set of custom fields are implemented for each Membership Type that allow you to:
+* Enable pro-rata of first amount.
+* Enable minimum fee for first amount.
+* Set the monthly payment amounts for the whole year.
+
+## Usage
+### Enable/Disable Auto-Renew for memberships (User Interface)
 Adds links to memberships in contact tab to:
 
 * Enable auto-renew - if the membership has no recurring contribution.
 * Disable auto-renew - if the membership already has a recurring contribution.
-
-## Implements the following Smartdebit Hooks
-
-### civicrm_smartdebit_alterVariableDDIParams
-
-If the contribution is for a membership, the first amount will be set to the amount passed in 
-(eg. by the contribution page), but the regular amount will be set to the fee configured for 
-the membership types linked to the recurring membership.  This is useful if you pro-rata the initial payment for example.
-
-
-### civicrm_smartdebit_updateRecurringContribution
-_This will be triggered every time Smartdebit Sync is called (or Smartdebit.updaterecurring API)._
-
-Payment amounts and dates will be validated and an update will be triggered (via Smartdebit changeSubscription) if any parameters should be updated.
 
 ## Use Cases
 ### Pay for multiple memberships using the same recurring contribution (direct debit)
@@ -55,3 +60,30 @@ Settings:
 1. The first payment taken will match what the contact signed up for.
 1. The regular payment taken will update to match the sum of membership minimum fees.
 1. Once the first payment is taken, the start_date will be updated at Smartdebit to match the fixed date defined in settings.
+
+### Each monthly payment should be a different amount
+Settings:
+* **Calculate regular payment amount based on memberships linked to the recurring contribution:**: TRUE
+* **Allow multiple memberships to be linked to a single recurring contribution (via UI):**: Optional
+
+Custom Fields:
+* Enable Monthly Amounts: TRUE
+* Set an amount for each of the 12 months.
+
+1. The contact will need to sign-up for the initial recurring contribution, it must contain a membership (eg. via price-set).
+1. The first payment taken will match what the contact signed up for.
+1. The regular payment taken will update to match the monthly membership fee based on the amounts specified.
+
+## Hooks (Smartdebit)
+
+### civicrm_smartdebit_alterVariableDDIParams
+
+If the contribution is for a membership, the first amount will be set to the amount passed in 
+(eg. by the contribution page), but the regular amount will be set to the fee configured for 
+the membership types linked to the recurring membership.  This is useful if you pro-rata the initial payment for example.
+
+
+### civicrm_smartdebit_updateRecurringContribution
+_This will be triggered every time Smartdebit Sync is called (or Smartdebit.updaterecurring API)._
+
+Payment amounts and dates will be validated and an update will be triggered (via Smartdebit changeSubscription) if any parameters should be updated.
