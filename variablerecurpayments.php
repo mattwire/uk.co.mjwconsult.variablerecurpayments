@@ -124,50 +124,6 @@ function variablerecurpayments_civicrm_alterSettingsFolders(&$metaDataFolders = 
 }
 
 /**
- * Implementation of hook_civicrm_smartdebit_alterCreateVariableDDIParams
- *
- * @param $recurParams
- * @param $smartDebitParams
- */
-function variablerecurpayments_civicrm_smartdebit_alterVariableDDIParams(&$recurParams, &$smartDebitParams, $op) {
-  if (CRM_Variablerecurpayments_Settings::getValue('normalmembershipamount')) {
-    switch ($op) {
-      case 'create':
-      case 'update':
-        if (CRM_Variablerecurpayments_Settings::getValue('debug')) {
-          Civi::log()->debug('Variablerecurpayments alterVariableDDIParams: recurParams: ' . print_r($recurParams, TRUE));
-        }
-        // Calculate the regular payment amount
-        $defaultAmount = CRM_Variablerecurpayments_Membership::getRegularMembershipAmount($recurParams);
-        if ($defaultAmount === NULL) {
-          return;
-        }
-        // Set the regular payment amount
-        if (CRM_Extension_System::singleton()
-          ->getMapper()
-          ->isActiveModule('smartdebit')) {
-          CRM_Variablerecurpayments_Smartdebit::alterDefaultPaymentAmount($smartDebitParams, $defaultAmount);
-          if (CRM_Variablerecurpayments_Settings::getValue('debug')) {
-            Civi::log()->debug('Variablerecurpayments alterVariableDDIParams: smartDebitParams: ' . print_r($smartDebitParams, TRUE));
-          }
-        }
-        break;
-    }
-  }
-}
-
-/**
- * Implementation of hook_civicrm_smartdebit_updateRecurringContribution
- *
- * @param $recurContributionParams
- */
-function variablerecurpayments_civicrm_smartdebit_updateRecurringContribution(&$recurContributionParams) {
-  if (CRM_Extension_System::singleton()->getMapper()->isActiveModule('smartdebit')) {
-    CRM_Variablerecurpayments_Smartdebit::checkSubscription($recurContributionParams);
-  }
-}
-
-/**
  * Implements hook_civicrm_navigationMenu().
  *
  * @link http://wiki.civicrm.org/confluence/display/CRMDOC/hook_civicrm_navigationMenu
@@ -224,5 +180,97 @@ function variablerecurpayments_civicrm_links($op, $objectName, $objectId, &$link
 
       }
       break;
+  }
+}
+
+/**
+ * Set the first amount for the membership fee on sign-up
+ *  Pro-rata or first amount based on other MembershipType custom fields
+ *
+ * @param $pageType
+ * @param $form
+ * @param $amount
+ *
+ * @throws \CiviCRM_API3_Exception
+ */
+function variablerecurpayments_civicrm_buildAmount($pageType, &$form, &$amount) {
+  if (!empty($form->get('mid'))) {
+    // Don't apply pro-rated fees to renewals
+    return;
+  }
+
+  //sample to modify priceset fee
+  $priceSetId = $form->get('priceSetId');
+  if (!empty($priceSetId)) {
+    $feeBlock = &$amount;
+    if (!is_array($feeBlock) || empty($feeBlock)) {
+      return;
+    }
+
+    if ($pageType == 'membership') {
+
+      foreach ($feeBlock as &$fee) {
+        if (!is_array($fee['options'])) {
+          continue;
+        }
+        foreach ($fee['options'] as &$option) {
+          // Pro-rata an annual membership?
+          CRM_Variablerecurpayments_Membership::proRata($option);
+          // Set first amount?
+          CRM_Variablerecurpayments_Membership::firstAmount($option);
+          // Format the currency amount with the correct number of decimal places
+          $option['amount'] = CRM_Utils_Money::format($option['amount'], NULL, NULL, TRUE);
+        }
+      }
+      // FIXME: Somewhere between 4.7.15 and 4.7.23 the above stopped working and we have to do the following to make the confirm page show the correct amount.
+      $form->_priceSet['fields'] = $feeBlock;
+    }
+  }
+}
+
+/**
+ * Implementation of hook_civicrm_smartdebit_alterCreateVariableDDIParams
+ *
+ * @param $recurParams
+ * @param $smartDebitParams
+ */
+function variablerecurpayments_civicrm_smartdebit_alterVariableDDIParams(&$recurParams, &$smartDebitParams, $op) {
+  if (CRM_Variablerecurpayments_Settings::getValue('normalmembershipamount')) {
+    switch ($op) {
+      case 'create':
+      case 'update':
+        if (CRM_Variablerecurpayments_Settings::getValue('debug')) {
+          Civi::log()->debug('Variablerecurpayments alterVariableDDIParams: recurParams: ' . print_r($recurParams, TRUE));
+        }
+        // Calculate the regular payment amount
+        $nextAmount = CRM_Variablerecurpayments_Membership::getNextMembershipPaymentAmount($recurParams);
+        if ($nextAmount === NULL) {
+          return;
+        }
+        // Set the regular payment amount
+        if (CRM_Extension_System::singleton()
+          ->getMapper()
+          ->isActiveModule('smartdebit')) {
+          CRM_Variablerecurpayments_Smartdebit::alterDefaultPaymentAmount($smartDebitParams, $nextAmount);
+          if (CRM_Variablerecurpayments_Settings::getValue('debug')) {
+            Civi::log()->debug('Variablerecurpayments alterVariableDDIParams: smartDebitParams: ' . print_r($smartDebitParams, TRUE));
+          }
+        }
+        break;
+    }
+  }
+}
+
+/**
+ * Implementation of hook_civicrm_smartdebit_updateRecurringContribution
+ *
+ * @param $recurContributionParams
+ *
+ * @throws \CiviCRM_API3_Exception
+ * @throws \Exception
+ */
+function variablerecurpayments_civicrm_smartdebit_updateRecurringContribution(&$recurContributionParams) {
+  if (CRM_Extension_System::singleton()->getMapper()->isActiveModule('smartdebit')) {
+    CRM_Variablerecurpayments_Smartdebit::checkSubscription($recurContributionParams);
   }
 }

@@ -75,7 +75,7 @@ class CRM_Variablerecurpayments_Smartdebit {
    */
   public static function checkPaymentAmounts($recurContributionParams, $smartDebitParams) {
     // Get the regular payment amount
-    $defaultAmount = CRM_Variablerecurpayments_Membership::getRegularMembershipAmount($recurContributionParams);
+    $defaultAmount = CRM_Variablerecurpayments_Membership::getNextMembershipPaymentAmount($recurContributionParams);
     if ($defaultAmount === NULL) {
       if (CRM_Variablerecurpayments_Settings::getValue('debug')) {
         Civi::log()
@@ -98,6 +98,15 @@ class CRM_Variablerecurpayments_Smartdebit {
     return TRUE;
   }
 
+  /**
+   * Check if the payment date needs to be updated at Smartdebit
+   *
+   * @param $recurContributionParams
+   * @param $smartDebitParams
+   * @param $startDate
+   *
+   * @return bool
+   */
   public static function checkPaymentDates(&$recurContributionParams, $smartDebitParams, &$startDate) {
     $fixedPaymentDate = CRM_Variablerecurpayments_Settings::getValue('fixedpaymentdate');
     if (!empty($fixedPaymentDate)) {
