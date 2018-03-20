@@ -87,3 +87,9 @@ the membership types linked to the recurring membership.  This is useful if you 
 _This will be triggered every time Smartdebit Sync is called (or Smartdebit.updaterecurring API)._
 
 Payment amounts and dates will be validated and an update will be triggered (via Smartdebit changeSubscription) if any parameters should be updated.
+
+# Testing
+Unit tests require that php-timecop extension is installed (https://github.com/hnw/php-timecop).
+
+Additionally `composer require kolemp/timecop-bundle` on the main civicrm tree (https://github.com/pkoltermann/timecop-bundle)
+
