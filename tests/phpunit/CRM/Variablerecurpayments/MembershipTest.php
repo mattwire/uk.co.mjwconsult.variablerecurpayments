@@ -38,22 +38,7 @@ class CRM_Variablerecurpayments_MembershipTest extends \PHPUnit_Framework_TestCa
     parent::tearDown();
   }
 
-  /**
-   * Example: Test that a version is returned.
-   */
-  public function testWellFormedVersion() {
-    $this->assertRegExp('/^([0-9\.]|alpha|beta)*$/', \CRM_Utils_System::version());
-  }
-
-  /**
-   * Example: Test that we're using a fake CMS.
-   */
-  public function testWellFormedUF() {
-    $this->assertEquals('UnitTests', CIVICRM_UF);
-  }
-
   public function addRequires() {
-    //require_once('tests/phpunit/CiviTest/helpers/CiviUnitTestApiFunctions.php');
     require_once(__DIR__ . '/../../../../CRM/Variablerecurpayments/Utils.php');
     require_once(__DIR__ . '/../../../../CRM/Variablerecurpayments/Membership.php');
   }
@@ -69,8 +54,33 @@ class CRM_Variablerecurpayments_MembershipTest extends \PHPUnit_Framework_TestCa
     }
   }
 
+  /*
+   * NOT IMPLEMENTED (we need to add a membership type first so API calls work
+  public function testProRata() {
+    $option = array (
+      'id' => '26',
+      'price_field_id' => '13',
+      'name' => 'General',
+      'label' => 'General',
+      'description' => 'Regular annual membership.',
+      'amount' => '100.000000000',
+      'weight' => '1',
+      'membership_type_id' => '1',
+      'membership_num_terms' => '1',
+      'is_default' => '1',
+      'is_active' => '1',
+      'financial_type_id' => '2',
+      'non_deductible_amount' => '0.00',
+      'visibility_id' => '1',
+      'tax_rate' => '20.00000000',
+      'tax_amount' => 20.0,
+    );
+    CRM_Variablerecurpayments_Membership::proRata($option);
+  }
+  */
+
   /**
-   * test function
+   * Test the getMonthlyAmount function
    *
    * @dataProvider getMonthlyAmountsDataSet
    *

@@ -98,6 +98,8 @@ class CRM_Variablerecurpayments_Membership {
    * @param int $monthModifier (Number of months to offset from current month)
    *
    * @return string|null
+   *
+   * @throws \CRM_Core_Exception
    * @throws \CiviCRM_API3_Exception
    */
   public static function getMonthlyAmount($membershipTypeDetails, $monthModifier) {
