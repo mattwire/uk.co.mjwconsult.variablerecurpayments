@@ -97,15 +97,16 @@ class CRM_Variablerecurpayments_Membership {
    * @param array $membershipTypeDetails
    * @param int $monthModifier (Number of months to offset from current month)
    *
-   * @return null
+   * @return string|null
+   * @throws \CiviCRM_API3_Exception
    */
-  private static function getMonthlyAmount($membershipTypeDetails, $monthModifier) {
+  public static function getMonthlyAmount($membershipTypeDetails, $monthModifier) {
     // Validate parameters
     if ($monthModifier > 12) {
-      $monthModifier = 12;
+      Throw new CRM_Core_Exception('Month modifier cannot be greater than 12');
     }
     if ($monthModifier < -12) {
-      $monthModifier = -12;
+      Throw new CRM_Core_Exception('Month modifier cannot be less than -12');
     }
 
     // Calculate month to return
@@ -116,6 +117,11 @@ class CRM_Variablerecurpayments_Membership {
       $currentMonth += -12;
     }
     elseif ($currentMonth < -12) {
+      $currentMonth += 12;
+    }
+
+    // Month 1 minus 1 = 0, it should be 12.
+    if ($currentMonth < 1) {
       $currentMonth += 12;
     }
 
@@ -132,7 +138,9 @@ class CRM_Variablerecurpayments_Membership {
    *
    * @param $params
    *
-   * @return int
+   * @return int|null|string Payment amount
+   *
+   * @throws \CiviCRM_API3_Exception
    */
   public static function getNextMembershipPaymentAmount($recurParams) {
     $recurId = CRM_Utils_Array::value('contributionRecurID', $recurParams, CRM_Utils_Array::value('id', $recurParams, NULL));
