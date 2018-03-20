@@ -121,7 +121,8 @@ class CRM_Variablerecurpayments_Membership {
 
     // Return the amount
     $monthField = 'month_' . $currentMonth;
-    return isset($membershipTypeDetails[$monthField]) ? $membershipTypeDetails[$monthField] : NULL;
+    $customFieldName = CRM_Variablerecurpayments_Utils::getField($monthField);
+    return isset($membershipTypeDetails[$customFieldName]) ? $membershipTypeDetails[$customFieldName] : NULL;
   }
 
   /**
