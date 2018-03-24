@@ -233,12 +233,15 @@ function variablerecurpayments_civicrm_buildAmount($pageType, &$form, &$amount) 
  *
  * @param $recurParams
  * @param $smartDebitParams
+ * @param $op
+ *
+ * @throws \CiviCRM_API3_Exception
  */
 function variablerecurpayments_civicrm_smartdebit_alterVariableDDIParams(&$recurParams, &$smartDebitParams, $op) {
   if (CRM_Variablerecurpayments_Settings::getValue('normalmembershipamount')) {
     switch ($op) {
       case 'create':
-      case 'update':
+      case 'edit':
         if (CRM_Variablerecurpayments_Settings::getValue('debug')) {
           Civi::log()->debug('Variablerecurpayments alterVariableDDIParams: recurParams: ' . print_r($recurParams, TRUE));
         }
