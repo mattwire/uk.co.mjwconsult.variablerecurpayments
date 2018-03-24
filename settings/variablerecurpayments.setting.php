@@ -78,7 +78,7 @@ return array(
     'description' => 'Allow multiple memberships to be linked to a single recurring contribution (via UI)',
     'html_attributes' => array(),
   ),
-  // Debugging
+  // Dry Run
   'variablerecurpayments_dryrun' => array(
     'admin_group' => 'variablerecurpayments_debug',
     'admin_grouptitle' => 'Debug Settings',

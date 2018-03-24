@@ -248,13 +248,9 @@ function variablerecurpayments_civicrm_smartdebit_alterVariableDDIParams(&$recur
           return;
         }
         // Set the regular payment amount
-        if (CRM_Extension_System::singleton()
-          ->getMapper()
-          ->isActiveModule('smartdebit')) {
-          CRM_Variablerecurpayments_Smartdebit::alterDefaultPaymentAmount($smartDebitParams, $nextAmount);
-          if (CRM_Variablerecurpayments_Settings::getValue('debug')) {
-            Civi::log()->debug('Variablerecurpayments alterVariableDDIParams: smartDebitParams: ' . print_r($smartDebitParams, TRUE));
-          }
+        CRM_Variablerecurpayments_Smartdebit::alterDefaultPaymentAmount($smartDebitParams, $nextAmount);
+        if (CRM_Variablerecurpayments_Settings::getValue('debug')) {
+          Civi::log()->debug('Variablerecurpayments alterVariableDDIParams: smartDebitParams: ' . print_r($smartDebitParams, TRUE));
         }
         break;
     }
@@ -270,7 +266,5 @@ function variablerecurpayments_civicrm_smartdebit_alterVariableDDIParams(&$recur
  * @throws \Exception
  */
 function variablerecurpayments_civicrm_smartdebit_updateRecurringContribution(&$recurContributionParams) {
-  if (CRM_Extension_System::singleton()->getMapper()->isActiveModule('smartdebit')) {
-    CRM_Variablerecurpayments_Smartdebit::checkSubscription($recurContributionParams);
-  }
+  CRM_Variablerecurpayments_Smartdebit::checkSubscription($recurContributionParams);
 }
