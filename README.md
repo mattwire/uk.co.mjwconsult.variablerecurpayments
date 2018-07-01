@@ -1,4 +1,5 @@
 # Variable Recur Payments
+
 This extension allows for much more flexible payment amounts for recurring contributions (when linked to memberships).
 
 It implements the following features:
@@ -9,6 +10,10 @@ It implements the following features:
 
 Currently it supports the following recurring contribution processors (via hooks):
 * Smartdebit
+
+# Requirements
+Version 0.9: org.civicrm.smartdebit >= 1.24
+
 
 ## Configuration
 ### Settings
