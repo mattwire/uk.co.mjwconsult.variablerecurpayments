@@ -23,7 +23,6 @@ class CRM_Variablerecurpayments_Smartdebit {
    * Check subscription for smartdebit
    * This function updates amounts and payment date at smartdebit based on conditions
    * @param $recurContributionParams
-   * @param $paymentDate
    *
    * @throws \CiviCRM_API3_Exception
    * @throws \Exception

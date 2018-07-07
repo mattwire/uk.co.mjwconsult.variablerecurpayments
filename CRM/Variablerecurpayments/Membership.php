@@ -217,19 +217,15 @@ class CRM_Variablerecurpayments_Membership {
 
   /**
    * pro-rata an annual membership per month
-   * membership year is from 1st Jan->31st Dec
-   * Subtract 1/12 per month so in Jan you pay full amount,
-   *  in Dec you pay 1/12
-   * 12 months in year, min 1 month so subtract current numeric month from 13 (gives 12 in Jan, 1 in December)
+   * membership year is specified in custom field 'pro_rata_start_month' and runs from the 1st of that month
+   * Subtract 1/12 per month so in Month 1 you pay full amount,
+   *  in Month 12 you pay 1/12
    *
    * @param array $option
    *
    * @throws \CiviCRM_API3_Exception
    */
   public static function proRata(&$option) {
-    $monthNum = date('n');
-    $monthsToPay = 13-$monthNum;
-
     // Only pro-rata paid memberships (and ones where a membership_type_id is specified which should be all of them)
     if (($option['amount'] > 0) && (!empty($option['membership_type_id']))) {
       // Find out if this MembershipType is configured for pro-rata?
@@ -244,16 +240,48 @@ class CRM_Variablerecurpayments_Membership {
         return;
       }
 
-      $option['amount'] = $option['amount'] * ($monthsToPay / 12);
-      $date12Obj = DateTime::createFromFormat('!m', 12);
-      $month12Name = $date12Obj->format('M');
-      if ($monthsToPay == 1) {
-        $option['label'] .= E::ts(' - Pro-rata: ') . $month12Name . E::ts(' only');
+      $proRataStartMonthNumber = (int) CRM_Utils_Array::value(CRM_Variablerecurpayments_Utils::getField('pro_rata_start_month'), $membershipTypeDetail, 1);
+      $currentMonthNumber = (int) date('n');
+      $proRata['month1'] = $proRataStartMonthNumber;
+      $proRata['month12'] = ($proRataStartMonthNumber === 1) ? 12 : $proRataStartMonthNumber - 1;
+      $proRata['currentYear'] = $proRata['endYear'] = (int) date('Y');
+      if (($proRata['month12'] < $proRata['month1']) && ($proRata['month12'] < 7)) {
+        //month1=2, month12=1, month12<month1 next year
+        //month1=1, month12=12, month12>month1 this year
+        //month1=3, month12=2, month12<month1 next year
+        //month1=7, month12=6, month12<month1 next year
+        //month1=8, month12=7, currentmonth=7, month12<month1 this year
+        //month1=9, month12=8, month12<month1 this year (handled by month12 < 7)
+        $proRata['endYear'] = $proRata['currentYear'] + 1;
       }
-      elseif ($monthsToPay < 12) {
-        $dateObj = DateTime::createFromFormat('!m', $monthNum);
-        $monthName = $dateObj->format('M');
-        $option['label'] .= E::ts(' - Pro-rata: ') . $monthName . E::ts(' to ') . $month12Name;
+
+
+      // Calculate how many months to pay for
+      // currentmonth=2, proratastart=3 (a-b=-1) pay for 1 month
+      // currentmonth=3, proratastart=2 (a-b=1) pay for (12-c)=11 months
+      // currentmonth=4, proratastart=1 (a-b=3) pay for (12-c)=9 months
+      // currentmonth=2, proratastart=12 (a-b=-10) pay for 10 months
+      $monthsToSubtract = $currentMonthNumber - $proRataStartMonthNumber;
+      if ($monthsToSubtract > 0) {
+        $proRata['monthsToPayFor'] = 12 - $monthsToSubtract;
+      }
+      elseif ($monthsToSubtract < 0) {
+        $proRata['monthsToPayFor'] = abs($monthsToSubtract);
+      }
+      else {
+        // We are paying in month 1 - full amount
+        $proRata['monthsToPayFor'] = 12;
+      }
+
+      // Calculate the actual amount and the label for the pro-rated membership option
+      $option['amount'] = $option['amount'] * ($proRata['monthsToPayFor'] / 12);
+      $date12Obj = DateTime::createFromFormat('m-Y', $proRata['month12'] . '-' . $proRata['endYear']);
+      $month12Name = $date12Obj->format('F Y');
+      if ($proRata['monthsToPayFor'] == 1) {
+        $option['label'] .= E::ts(' - Pro-rata: %1 only', [1 => $month12Name]);
+      }
+      elseif ($proRata['monthsToPayFor'] < 12) {
+        $option['label'] .= E::ts(' - Pro-rata: %1 months to %2', [1 => $proRata['monthsToPayFor'], 2 => $month12Name]);
       }
     }
   }
@@ -263,6 +291,7 @@ class CRM_Variablerecurpayments_Membership {
    *
    * @param array $option
    *
+   * @throws \CRM_Core_Exception
    * @throws \CiviCRM_API3_Exception
    */
   public static function firstAmount(&$option) {

@@ -4,7 +4,7 @@ This extension allows for much more flexible payment amounts for recurring contr
 
 It implements the following features:
 * UI to enable/disable auto-renew functionality for memberships.
-* Pro-rata membership fees (Jan-Dec).
+* Pro-rata membership fees for Annual Memberships.
 * Different membership payments for each month.
 * Different initial payment amount (and fixed subsequent amount).
 
@@ -33,8 +33,9 @@ Note: alterVariableDDI params will not be called on updateSubscription as this r
 ### Custom Fields
 A set of custom fields are implemented for each Membership Type that allow you to:
 * Enable pro-rata of first amount.
+  * Pro-rata Start Month.
 * Enable minimum fee for first amount.
-* Set the monthly payment amounts for the whole year.
+* Set the monthly payment amounts for the whole year (12 fields for months January-December).
 
 ## Usage
 ### Enable/Disable Auto-Renew for memberships (User Interface)

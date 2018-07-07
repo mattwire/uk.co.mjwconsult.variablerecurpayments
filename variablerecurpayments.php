@@ -202,6 +202,12 @@ function variablerecurpayments_civicrm_links($op, $objectName, $objectId, &$link
   }
 }
 
+function variablerecurpayments_civicrm_fieldOptions($entity, $field, &$options, $params) {
+  if ($entity == 'MembershipType' && $field == CRM_Variablerecurpayments_Utils::getField('pro_rata_start_month')) {
+    $options = CRM_Utils_Date::getFullMonthNames();
+  }
+}
+
 /**
  * Set the first amount for the membership fee on sign-up
  *  Pro-rata or first amount based on other MembershipType custom fields

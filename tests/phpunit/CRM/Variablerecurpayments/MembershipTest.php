@@ -20,7 +20,7 @@ use Civi\Test\TransactionalInterface;
  * @group headless
  */
 class CRM_Variablerecurpayments_MembershipTest extends \PHPUnit_Framework_TestCase implements HeadlessInterface, HookInterface, TransactionalInterface {
-  //use CiviUnitTestApiFunctions;
+  use \Civi\Test\Api3TestTrait;
 
   public function setUpHeadless() {
     // Civi\Test has many helpers, like install(), uninstall(), sql(), and sqlFile().
@@ -43,6 +43,9 @@ class CRM_Variablerecurpayments_MembershipTest extends \PHPUnit_Framework_TestCa
     require_once(__DIR__ . '/../../../../CRM/Variablerecurpayments/Membership.php');
   }
 
+  /**
+   * This class mocks custom fields without actually adding them
+   */
   public function addStatics() {
     $className = 'CRM_Variablerecurpayments_Utils';
     $customFieldId = 1;
@@ -52,10 +55,12 @@ class CRM_Variablerecurpayments_MembershipTest extends \PHPUnit_Framework_TestCa
       Civi::$statics[$className]['month_' . $count]['string'] = 'custom_' . $customFieldId;
       $customFieldId++;
     }
+    Civi::$statics[$className]['pro_rata']['string'] = 'custom_' . $customFieldId;
+    Civi::$statics[$className]['pro_rata_start_month']['string'] = 'custom_' . $customFieldId;
   }
 
   /*
-   * NOT IMPLEMENTED (we need to add a membership type first so API calls work
+   * NOT IMPLEMENTED (we need to add a membership type first so API calls work*/
   public function testProRata() {
     $option = array (
       'id' => '26',
@@ -75,9 +80,9 @@ class CRM_Variablerecurpayments_MembershipTest extends \PHPUnit_Framework_TestCa
       'tax_rate' => '20.00000000',
       'tax_amount' => 20.0,
     );
+
     CRM_Variablerecurpayments_Membership::proRata($option);
   }
-  */
 
   /**
    * Test the getMonthlyAmount function
@@ -171,5 +176,7 @@ class CRM_Variablerecurpayments_MembershipTest extends \PHPUnit_Framework_TestCa
 
     return $result;
   }
+
+
 
 }

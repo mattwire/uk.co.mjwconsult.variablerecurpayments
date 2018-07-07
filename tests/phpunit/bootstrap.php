@@ -12,8 +12,6 @@ $loader->add('api_', __DIR__);
 $loader->add('api\\', __DIR__);
 $loader->register();
 
-require_once('tests/phpunit/CiviTest/helpers/CiviUnitTestApiFunctions.php');
-
 /**
  * Call the "cv" command.
  *
