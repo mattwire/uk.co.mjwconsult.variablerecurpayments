@@ -275,6 +275,9 @@ class CRM_Variablerecurpayments_Membership {
 
       // Calculate the actual amount and the label for the pro-rated membership option
       $option['amount'] = $option['amount'] * ($proRata['monthsToPayFor'] / 12);
+      if (!empty($option['tax_rate']) && !empty($option['tax_amount'])) {
+        $option['tax_amount'] = $option['amount'] * ($option['tax_rate'] / 100);
+      }
       $date12Obj = DateTime::createFromFormat('m-Y', $proRata['month12'] . '-' . $proRata['endYear']);
       $month12Name = $date12Obj->format('F Y');
       if ($proRata['monthsToPayFor'] == 1) {
