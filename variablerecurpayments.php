@@ -27,7 +27,6 @@ function variablerecurpayments_civicrm_xmlMenu(&$files) {
  * @link http://wiki.civicrm.org/confluence/display/CRMDOC/hook_civicrm_install
  */
 function variablerecurpayments_civicrm_install() {
-  CRM_Variablerecurpayments_Upgrader::enableMembershipTypeCustomData();
   _variablerecurpayments_civix_civicrm_install();
 }
 
@@ -37,6 +36,7 @@ function variablerecurpayments_civicrm_install() {
  * @link http://wiki.civicrm.org/confluence/display/CRMDOC/hook_civicrm_postInstall
  */
 function variablerecurpayments_civicrm_postInstall() {
+  CRM_Variablerecurpayments_Upgrader::enableMembershipTypeCustomData();
   _variablerecurpayments_civix_civicrm_postInstall();
 }
 
