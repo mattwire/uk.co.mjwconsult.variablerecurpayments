@@ -159,7 +159,7 @@ class CRM_Variablerecurpayments_Smartdebit {
           // Set parameters for next payment date.
           $recurContributionParams['cycle_day'] = $newPaymentDate->format('d');
           $recurContributionParams['next_sched_contribution_date'] = $nextPaymentDate;
-          $recurContributionParams['next_sched_contribution'] = $nextPaymentDate;
+          unset($recurContributionParams['next_sched_contribution']);
           $startDate = $nextPaymentDate;
           return TRUE;
         }
