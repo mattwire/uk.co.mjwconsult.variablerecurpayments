@@ -27,7 +27,29 @@ function variablerecurpayments_civicrm_xmlMenu(&$files) {
  * @link http://wiki.civicrm.org/confluence/display/CRMDOC/hook_civicrm_install
  */
 function variablerecurpayments_civicrm_install() {
+  _variablerecurpayments_enableMembershipTypeCustomData();
   _variablerecurpayments_civix_civicrm_install();
+}
+
+function _variablerecurpayments_enableMembershipTypeCustomData() {
+  // Enable MembershipType custom data
+  $optionValue = [
+    'name' => 'civicrm_membership_type',
+    'label' => 'Membership Types',
+    'value' => 'MembershipType',
+  ];
+  $optionValues = civicrm_api3('OptionValue', 'get', [
+    'option_group_id' => 'cg_extend_objects',
+    'name' => $optionValue['name'],
+  ]);
+  if (!$optionValues['count']) {
+    civicrm_api3('OptionValue', 'create', [
+      'option_group_id' => 'cg_extend_objects',
+      'name' => $optionValue['name'],
+      'label' => $optionValue['label'],
+      'value' => $optionValue['value'],
+    ]);
+  }
 }
 
 /**
@@ -36,7 +58,6 @@ function variablerecurpayments_civicrm_install() {
  * @link http://wiki.civicrm.org/confluence/display/CRMDOC/hook_civicrm_postInstall
  */
 function variablerecurpayments_civicrm_postInstall() {
-  CRM_Variablerecurpayments_Upgrader::enableMembershipTypeCustomData();
   _variablerecurpayments_civix_civicrm_postInstall();
 }
 
