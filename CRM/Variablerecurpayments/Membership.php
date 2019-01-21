@@ -245,13 +245,14 @@ class CRM_Variablerecurpayments_Membership {
       $proRata['month1'] = $proRataStartMonthNumber;
       $proRata['month12'] = ($proRataStartMonthNumber === 1) ? 12 : $proRataStartMonthNumber - 1;
       $proRata['currentYear'] = $proRata['endYear'] = (int) date('Y');
-      if (($proRata['month12'] < $proRata['month1']) && ($proRata['month12'] < 7)) {
+      if (($proRata['month12'] < $proRata['month1']) && ($proRata['month12'] < $currentMonthNumber)) {
         //month1=2, month12=1, month12<month1 next year
         //month1=1, month12=12, month12>month1 this year
         //month1=3, month12=2, month12<month1 next year
         //month1=7, month12=6, month12<month1 next year
         //month1=8, month12=7, currentmonth=7, month12<month1 this year
         //month1=9, month12=8, month12<month1 this year (handled by month12 < 7)
+        //month1=4, month12=3, month12<month1, currentmonth=1, this year
         $proRata['endYear'] = $proRata['currentYear'] + 1;
       }
 
