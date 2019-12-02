@@ -1,3 +1,5 @@
+# MOVED TO https://lab.civicrm.org/extensions/variablerecurpayments
+
 # Variable Recur Payments
 
 ## Description
